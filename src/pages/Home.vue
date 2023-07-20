@@ -1,38 +1,50 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-defineProps<{ msg: string }>()
-
-const count = ref(0)
+import SquareImage from '../components/SquareImage.vue'
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <div class="home">
+    <SquareImage size="2xl" src="/images/chibi_gwen_soulfighter.png" class="home__main-icon" />
+    <div class="home__content">
+      <h1 class="home__content__header">Get Ready for the Fight!</h1>
+      <p class="home__content__description">Discover your favourite champions and build your dream team</p>
+    </div>
+    <router-link to="/build" class="home__action">
+      Build Your Team
+    </router-link>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Install
-    <a href="https://github.com/vuejs/language-tools" target="_blank">Volar</a>
-    in your IDE for a better DX
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
+.home {
+  @apply flex flex-col justify-center items-center;
+}
+
+.home > * {
+  @apply mb-4;
+}
+
+.home > *:last-child {
+  @apply mb-0;
+}
+
+.home__main-icon {
+  @apply object-cover rounded-full;
+}
+
+.home__content {
+  @apply text-center;
+}
+
+.home__content__header {
+  @apply mb-2 text-xl md:text-4xl font-semibold;
+}
+
+.home__content__description {
+  @apply text-xs md:text-base text-secondary;
+}
+
+.home__action {
+  @apply btn-primary;
 }
 </style>
