@@ -8,6 +8,9 @@ import SquareImage from './SquareImage.vue'
       <SquareImage src="/images/logo.png" size="sm" />
       <span>TFT Fan</span>
     </router-link>
+    <router-link to="/champions" class="header__btn-link">
+      Champions
+    </router-link>
   </div>
 </template>
 
