@@ -10,7 +10,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: "lg"
+  size: "md"
 })
 
 const { src, cost } = toRefs(props)
@@ -22,7 +22,7 @@ const { src, cost } = toRefs(props)
 
 <style scoped>
 .champion-icon {
-  @apply rounded-full border-4;
+  @apply border-2;
 }
 
 .champion-icon--cost-1 {
