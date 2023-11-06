@@ -22,4 +22,48 @@
   .btn-secondary {
     @apply btn-base bg-gray-600 hover:bg-gray-800;
   }
+
+  physicaldamage {
+    @apply text-orange-400;
+  }
+
+  magicdamage {
+    @apply text-indigo-500;
+  }
+
+  scalehealth {
+    @apply text-emerald-600;
+  }
+
+  tftkeyword {
+    @apply font-bold italic;
+  }
+
+  rules {
+    @apply text-sm italic;
+  }
+
+  tftitemrules {
+    @apply text-sm italic;
+  }
+
+  tftbonus {
+    @apply text-primary;
+  }
+
+  tftbold {
+    @apply font-bold;
+  }
+
+  row {
+    @apply inline-flex mb-1;
+  }
+
+  row:last-of-type {
+    @apply mb-0;
+  }
+
+  .scale {
+    @apply inline w-4;
+  }
 }
