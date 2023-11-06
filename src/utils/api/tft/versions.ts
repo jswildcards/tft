@@ -1,4 +1,4 @@
-import { VersionsResponse } from '../../../models/tft/Versions'
+import { VersionsResponse } from '../../../models/tft/versions/Response'
 
 async function getVersions(): Promise<VersionsResponse> {
   const response = await fetch('/data/versions.json')
