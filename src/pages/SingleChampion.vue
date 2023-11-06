@@ -93,8 +93,8 @@ function toFixed(num: number) {
               <div v-html="trait.getAdjustedDescription()" class="text-secondary text-sm"></div>
 
               <div class="flex flex-wrap mt-4">
-                <router-link :to="champion.url" v-for="champion in trait.championIds.map(getChampion)" :key="champion.id" class="mr-2 mb-2">
-                  <ChampionIcon size="md" :src="champion.icon" :cost="champion.cost" />
+                <router-link :to="champion.url" v-for="champion in trait.championIds.map(getChampion).sort((a, b) => a.compareByCost(b))" :key="champion.id" class="mr-2 mb-2">
+                  <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" />
                 </router-link>
               </div>
             </div>
@@ -106,42 +106,6 @@ function toFixed(num: number) {
 </template>
 
 <style scoped>
->>> physicaldamage {
-  @apply text-orange-400;
-}
-
->>> magicdamage {
-  @apply text-indigo-500;
-}
-
->>> scalehealth {
-  @apply text-emerald-600;
-}
-
->>> tftkeyword {
-  @apply font-bold italic;
-}
-
->>> rules {
-  @apply text-sm italic;
-}
-
->>> tftbonus {
-  @apply text-primary;
-}
-
->>> tftbold {
-  @apply font-bold;
-}
-
->>> row {
-  @apply inline-flex mb-1;
-}
-
->>> row:last-of-type {
-  @apply mb-0;
-}
-
 >>> .trait-style {
   @apply flex justify-center items-center text-slate-900 font-bold shrink-0 w-5 h-5 mr-2 border;
 }
@@ -161,9 +125,5 @@ function toFixed(num: number) {
 >>> .trait-style--5 {
   @apply border-slate-100;
   background: conic-gradient(from 180deg, rgb(181, 249, 177) -25.61deg, rgb(174, 167, 248) 0.63deg, rgb(185, 232, 188) 27.2deg, rgb(246, 254, 216) 56.21deg, rgb(199, 251, 247) 83.01deg, rgb(154, 240, 254) 109.35deg, rgb(245, 236, 255) 129.56deg, rgb(248, 153, 248) 154.85deg, rgb(182, 252, 227) 181.24deg, rgb(126, 147, 242) 210.86deg, rgb(225, 164, 253) 244.3deg, rgb(175, 230, 240) 264.6deg, rgb(243, 241, 199) 287.41deg, rgb(233, 159, 126) 306.52deg, rgb(181, 249, 177) 334.39deg, rgb(174, 167, 248) 360.63deg);
-}
-
->>> .scale {
-  @apply inline w-4;
 }
 </style>
