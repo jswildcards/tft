@@ -1,5 +1,6 @@
 import { Champion } from '../models/tft/Champion'
 import { Trait } from '../models/tft/Trait'
+import { Item } from '../models/tft/Item'
 import CommunityDragonResponse from '../models/api/community-dragon/Response'
 
 import { getVersions } from '../utils/api/tft/versions'
@@ -93,6 +94,57 @@ function getChampionsFromRawData(dataDragonChampions, communityDragonChampions, 
   }, {})
 }
 
+function getItemsFromRawData(dataDragonItems, communityDragonItems) {
+  // Temporarily disabling non-related items
+  const excludedItemIds = [
+    'TFT_Item_UnusableSlot',
+  ]
+
+  const excludedItemNames = [
+    '',
+  ]
+
+  const itemIds = Object.keys(dataDragonItems).map(itemId => {
+    if(itemId.match('/'))
+      return itemId.split('/')[1]
+
+    return itemId
+  })
+
+  const items: Record<string, Item> = itemIds.reduce((items, itemId) => {
+    const itemObject = communityDragonItems.find(item => item.apiName === itemId)
+
+    const item = new Item({
+      id: itemId,
+      associatedTraits: itemObject.associatedTraits,
+      composition: itemObject.composition,
+      desc: itemObject.desc,
+      effects: itemObject.effects,
+      from: itemObject.from,
+      icon: getIconURL(itemObject.icon),
+      incompatibleTraits: itemObject.incompatibleTraits,
+      name: itemObject.name,
+      unique: itemObject.unique,
+    })
+
+    if(excludedItemNames.includes(item.name) || excludedItemIds.includes(item.id))
+      return items
+
+    return {
+      ...items,
+      [itemId]: item,
+    }
+  }, {})
+
+  Object.values(items).filter(item => item.composable()).forEach(item => {
+    item.composition.forEach(baseItemId => {
+      items[baseItemId].addComposableItemId(item.id)
+    })
+  })
+
+  return items
+}
+
 async function getTFTStaticDataResults() {
   const {
     dataDragon: dataDragonVersion,
@@ -108,9 +160,12 @@ async function getTFTStaticDataResults() {
 
   const championHashes = getChampionsFromRawData(dataDragonData.champions, communityDragonData.champions, traits)
 
+  const itemHashes = getItemsFromRawData(dataDragonData.items, communityDragonData.items)
+
   return {
     traits:    traitHashes,
     champions: championHashes,
+    items:     itemHashes,
   }
 }
 

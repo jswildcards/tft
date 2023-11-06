@@ -11,6 +11,9 @@ import SquareImage from './SquareImage.vue'
     <router-link to="/champions" class="header__btn-link">
       Champions
     </router-link>
+    <router-link to="/items" class="header__btn-link">
+      Items
+    </router-link>
   </div>
 </template>
 
