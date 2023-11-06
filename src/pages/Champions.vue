@@ -25,6 +25,18 @@ const champions = computed(() => {
   return staticDataStore.champions
 })
 
+const randomChampionName = computed(() => {
+  const championsArray = Object.values(champions.value)
+  const randomIndex = Math.floor(Math.random() * championsArray.length)
+  return championsArray[randomIndex].name
+})
+
+const searchText = ref("")
+
+function setSearchText(text: string) {
+  searchText.value = text
+}
+
 function setSortOption(option: string) {
   sortOption.value = option
 }
@@ -43,7 +55,11 @@ function setActiveSortOption(option: string) {
     </div>
 
     <div class="champions__header">
-      <div class="champions__header__heading">Champions</div>
+      <div class="flex bg-slate-700 rounded mr-2 pl-4">
+        <div class="py-1.5 -scale-x-100">⌕</div>
+        <input class="bg-slate-700 ml-3 rounded focus:outline-none" v-model="searchText" :placeholder="randomChampionName" />
+        <button class="w-8 h-8 rounded-full hover:bg-slate-800 my-auto mx-1.5" @click="setSearchText('')">×</button>
+      </div>
       <div class="champions__header__sort-options">
         <div class="champions__header__sort-options__text">Sort</div>
         <div class="champions__button-group">
@@ -56,9 +72,9 @@ function setActiveSortOption(option: string) {
     </div>
 
     <div class="champions__champion-list">
-      <router-link :to="champion.url" :key="champion.id" v-for="champion in champions" class="champions__champion-list__item">
+      <router-link :to="champion.url" :key="champion.id" v-for="champion in Object.values(champions).filter(champion => champion.name.toLowerCase().includes(searchText.toLowerCase()))" class="champions__champion-list__item">
         <ChampionIcon :src="champion.icon" :cost="champion.cost" />
-        <div class="mt-1 truncate w-28">{{ champion.name }}</div>
+        <div class="mt-1 text-sm">{{ champion.name }}</div>
 
         <div class="flex mt-1">
           <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
@@ -70,7 +86,7 @@ function setActiveSortOption(option: string) {
 
 <style scoped>
 .champions__header {
-  @apply flex justify-between items-center mb-4;
+  @apply flex justify-between mb-4;
 }
 
 .champions__header__heading {
@@ -119,11 +135,11 @@ function setActiveSortOption(option: string) {
 }
 
 .champions__champion-list {
-  @apply grid gap-2 justify-center;
+  @apply rounded grid gap-2 justify-center bg-slate-900 p-4;
   grid-template-columns: repeat(auto-fit, 112px);
 }
 
 .champions__champion-list__item {
-  @apply w-28 flex flex-col items-center py-3 text-center;
+  @apply rounded w-28 flex flex-col items-center p-3 text-center duration-75 hover:bg-slate-700;
 }
 </style>
