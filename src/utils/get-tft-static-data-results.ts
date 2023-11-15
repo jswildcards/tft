@@ -12,8 +12,8 @@ import {
   getAugments
 } from '../utils/api/data-dragon'
 
-async function extractCommunityDragonRecords(communityDragonVersion: string, setVersion: string) {
-  const data: CommunityDragonResponse = await getCommunityDragonData(communityDragonVersion)
+async function extractCommunityDragonRecords(communityDragonVersion: string, setVersion: string, locale: string) {
+  const data: CommunityDragonResponse = await getCommunityDragonData(communityDragonVersion, locale)
   const currentSet = data.setData.find(set => set.mutator === setVersion)
 
   return {
@@ -145,14 +145,14 @@ function getItemsFromRawData(dataDragonItems, communityDragonItems) {
   return items
 }
 
-async function getTFTStaticDataResults() {
+async function getTFTStaticDataResults(locale: string) {
   const {
     dataDragon: dataDragonVersion,
     communityDragon: communityDragonVersion,
     set: setVersion,
   } = await getVersions()
 
-  const communityDragonData = await extractCommunityDragonRecords(communityDragonVersion, setVersion)
+  const communityDragonData = await extractCommunityDragonRecords(communityDragonVersion, setVersion, locale)
   const dataDragonData = await extractDataDragonRecords(dataDragonVersion)
 
   const traitHashes = getTraitsFromRawData(dataDragonData.traits, communityDragonData.traits)
