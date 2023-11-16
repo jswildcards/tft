@@ -10,7 +10,7 @@ import LoadPage from '../components/LoadPage.vue'
 
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)
-staticDataStore.initialize()
+staticDataStore.loadData()
 
 const FILTER_ALL_ITEMS = 'All'
 const FILTER_BASE_ITEMS = 'Base'
@@ -103,7 +103,7 @@ function toggleShowFilterOptions(e) {
 </script>
 
 <template>
-  <LoadPage :isLoaded="staticDataStore.isInitialized" @click="toggleShowFilterOptions">
+  <LoadPage :isLoaded="staticDataStore.isDataLoaded" @click="toggleShowFilterOptions">
     <div v-if="targetItem" class="fixed top-0 left-0 w-screen h-screen bg-slate-900/90 z-50 flex justify-center items-center">
       <div class="bg-slate-800 rounded p-4 shadow-2xl w-5/6 max-w-md">
         <div class="flex justify-between mb-1">

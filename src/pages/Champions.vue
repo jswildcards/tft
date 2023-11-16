@@ -15,7 +15,7 @@ const SORT_OPTION_COST = 'sort_option_cost'
 
 const staticDataStore = useStaticDataStore()
 const { getTrait } = storeToRefs(staticDataStore)
-staticDataStore.initialize()
+staticDataStore.loadData()
 
 const sortOption = ref(SORT_OPTION_CHARACTER)
 const champions = computed(() => {
@@ -47,7 +47,7 @@ function setActiveSortOption(option: string) {
 </script>
 
 <template>
-  <LoadPage :isLoaded="staticDataStore.isInitialized">
+  <LoadPage :isLoaded="staticDataStore.isDataLoaded">
     <div class="flex mb-6 text-sm text-secondary">
       <router-link to="/" class="underline text-sky-500">Home</router-link>
       <div class="mx-2">/</div>

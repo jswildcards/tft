@@ -19,6 +19,7 @@ interface State {
   availableLocaleDisplays: Record<string, string>[] | null
 
   isInitialized: boolean
+  isDataLoaded: boolean
 }
 
 const useStaticDataStore = defineStore('staticData', {
@@ -33,6 +34,7 @@ const useStaticDataStore = defineStore('staticData', {
     availableLocaleDisplays: null,
 
     isInitialized: false,
+    isDataLoaded: false,
   }),
   getters: {
     getTrait(state: State) {
@@ -80,42 +82,48 @@ const useStaticDataStore = defineStore('staticData', {
   },
   actions: {
     async initialize() {
-      if(this.isCorrectLocale && this.isInitialized)
+      if(this.isInitialized)
         return
 
       this.isInitialized = false
 
-      if(this.availableLocales === null) {
-        const { available: availableLocales, default: defaultLocale } = await getLocales()
-        this.availableLocales = availableLocales
-        this.selectedLocale = defaultLocale
+      const { available: availableLocales, default: defaultLocale } = await getLocales()
+      this.availableLocales = availableLocales
+      this.selectedLocale = defaultLocale
 
-        const framework = new CLDRFramework({
-          asyncLoader: async function(language: string) {
-            const resources = await fetch(`https://cdn.jsdelivr.net/npm/@phensley/cldr@1.7.3/packs/${language}.json`)
-            return resources.json()
-          }
-        })
+      const framework = new CLDRFramework({
+        asyncLoader: async function(language: string) {
+          const resources = await fetch(`https://cdn.jsdelivr.net/npm/@phensley/cldr@1.7.3/packs/${language}.json`)
+          return resources.json()
+        }
+      })
 
-        this.availableLocaleDisplays = await Promise.all(
-          this.availableLocales.map(
-            async (code) => {
-              const cldr = await framework.getAsync(code)
-              const language = cldr.General.getLanguageDisplayName(code)
-              const region = cldr.General.getRegionDisplayName(code)
+      this.availableLocaleDisplays = await Promise.all(
+        this.availableLocales.map(
+          async (code) => {
+            const cldr = await framework.getAsync(code)
+            const language = cldr.General.getLanguageDisplayName(code)
+            const region = cldr.General.getRegionDisplayName(code)
 
-              return {
-                code,
-                display: {
-                  full: `${language} (${region})`,
-                  simple: language,
-                },
-              }
+            return {
+              code,
+              display: {
+                full: `${language} (${region})`,
+                simple: language,
+              },
             }
-          )
+          }
         )
-      }
+      )
 
+      this.isInitialized = true
+      this.loadData()
+    },
+    async loadData() {
+      if(this.isCorrectLocale && this.isDataLoaded)
+        return
+
+      this.isDataLoaded = false
       this.currentLocale = this.selectedLocale
 
       const { champions, traits, items } = await getTFTStaticDataResults(this.currentLocale)
@@ -123,13 +131,13 @@ const useStaticDataStore = defineStore('staticData', {
       this.traits = traits
       this.items = items
 
-      this.isInitialized = true
+      this.isDataLoaded = true
     },
     updateSelectedLocale(locale: string) {
       this.selectedLocale = locale
 
       if(!this.isCorrectLocale)
-        this.initialize()
+        this.loadData()
     }
   },
 })

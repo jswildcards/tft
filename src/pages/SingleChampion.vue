@@ -11,7 +11,7 @@ import LoadPage from '../components/LoadPage.vue'
 
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)
-staticDataStore.initialize()
+staticDataStore.loadData()
 
 const route = useRoute()
 const champion = computed(() => staticDataStore.champions[route.params.id])
@@ -28,7 +28,7 @@ function toFixed(num: number) {
 </script>
 
 <template>
-  <LoadPage :isLoaded="staticDataStore.isInitialized">
+  <LoadPage :isLoaded="staticDataStore.isDataLoaded">
     <div class="flex mb-6 text-sm text-secondary">
       <router-link to="/" class="underline text-sky-500">Home</router-link>
       <div class="mx-2">/</div>
