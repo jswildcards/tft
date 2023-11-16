@@ -8,8 +8,8 @@ import { useStaticDataStore } from '../stores/StaticData'
 
 const staticDataStore = useStaticDataStore()
 const { getLocaleDisplay } = storeToRefs(staticDataStore)
+staticDataStore.initialize()
 
-const allLocaleCodes = staticDataStore.availableLocales
 const showModal = ref(false)
 
 function setActiveLocale(localeCode: string) {
@@ -38,7 +38,7 @@ function updateSelectedLocale(localeCode: string) {
       </div>
 
       <div class="header__modal__button-group">
-        <button v-for="localeCode in allLocaleCodes" :key="localeCode" @click="updateSelectedLocale(localeCode)" :class="`header__modal__button-group__button ${setActiveLocale(localeCode)}`">
+        <button v-for="localeCode in staticDataStore.availableLocales" :key="localeCode" @click="updateSelectedLocale(localeCode)" :class="`header__modal__button-group__button ${setActiveLocale(localeCode)}`">
           {{ getLocaleDisplay(localeCode).full }}
         </button>
       </div>
@@ -59,10 +59,12 @@ function updateSelectedLocale(localeCode: string) {
       </router-link>
     </div>
 
-    <button class="header__option-locale" @click="openModal()">
-      <div>🌐</div>
-      <div class="ml-2">{{ getLocaleDisplay(staticDataStore.selectedLocale).simple }}</div>
-    </button>
+    <div>
+      <button v-if="staticDataStore.isInitialized" class="header__option-locale" @click="openModal()">
+        <div>🌐</div>
+        <div class="ml-2">{{ getLocaleDisplay(staticDataStore.selectedLocale).simple }}</div>
+      </button>
+    </div>
   </div>
 </template>
 

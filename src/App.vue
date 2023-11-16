@@ -1,23 +1,15 @@
 <script setup lang="ts">
-import { useStaticDataStore } from './stores/StaticData'
-
 import Header from './components/Header.vue'
-import LoadPage from './components/LoadPage.vue'
-
-const staticDataStore = useStaticDataStore()
-staticDataStore.initialize()
 </script>
 
 <template>
-  <LoadPage :isLoaded="staticDataStore.isInitialized">
-    <div class="page-container">
-      <div class="header-container">
-        <Header />
-      </div>
-
-      <router-view class="main-container" />
+  <div class="page-container">
+    <div class="header-container">
+      <Header />
     </div>
-  </LoadPage>
+
+    <router-view class="main-container" />
+  </div>
 </template>
 
 <style scoped>
