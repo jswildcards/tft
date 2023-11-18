@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { CLDRFramework } from '@phensley/cldr';
 
+import Augment from '../models/tft/Augment'
 import Champion from '../models/tft/Champion'
 import Item from '../models/tft/Item'
 import Trait from '../models/tft/Trait'
@@ -12,6 +13,7 @@ interface State {
   champions: Record<string, Champion>
   traits: Record<string, Trait>
   items: Record<string, Item>
+  augments: Record<string, Augment>
 
   selectedLocale: string | null
   currentLocale: string | null
@@ -27,6 +29,7 @@ const useStaticDataStore = defineStore('staticData', {
     champions: {},
     traits:    {},
     items:     {},
+    augments:  {},
 
     selectedLocale: null,
     currentLocale: null,
@@ -126,10 +129,11 @@ const useStaticDataStore = defineStore('staticData', {
       this.isDataLoaded = false
       this.currentLocale = this.selectedLocale
 
-      const { champions, traits, items } = await getTFTStaticDataResults(this.currentLocale)
+      const { champions, traits, items, augments } = await getTFTStaticDataResults(this.currentLocale)
       this.champions = champions
       this.traits = traits
       this.items = items
+      this.augments = augments
 
       this.isDataLoaded = true
     },

@@ -57,6 +57,9 @@ function updateSelectedLocale(localeCode: string) {
       <router-link to="/items" class="header__btn-link">
         Items
       </router-link>
+      <router-link to="/augments" class="header__btn-link">
+        Augments
+      </router-link>
     </div>
 
     <div>

@@ -1,6 +1,7 @@
 import { Champion } from '../models/tft/Champion'
 import { Trait } from '../models/tft/Trait'
 import { Item } from '../models/tft/Item'
+import { Augment } from '../models/tft/Augment'
 import CommunityDragonResponse from '../models/api/community-dragon/Response'
 
 import { getVersions } from '../utils/api/tft/versions'
@@ -145,6 +146,34 @@ function getItemsFromRawData(dataDragonItems, communityDragonItems) {
   return items
 }
 
+function getAugmentsFromRawData(dataDragonAugments, communityDragonAugments) {
+  const augmentIds = Object.keys(dataDragonAugments)
+
+  const augments: Record<string, Augment> = augmentIds.reduce((augments, augmentId) => {
+    const augmentObject = communityDragonAugments.find(augment => augment.apiName === augmentId)
+
+    const augment = new Augment({
+      id: augmentId,
+      associatedTraits: augmentObject.associatedTraits,
+      composition: augmentObject.composition,
+      desc: augmentObject.desc,
+      effects: augmentObject.effects,
+      from: augmentObject.from,
+      icon: getIconURL(augmentObject.icon),
+      incompatibleTraits: augmentObject.incompatibleTraits,
+      name: augmentObject.name,
+      unique: augmentObject.unique,
+    })
+
+    return {
+      ...augments,
+      [augmentId]: augment,
+    }
+  }, {})
+
+  return augments
+}
+
 async function getTFTStaticDataResults(locale: string) {
   const {
     dataDragon: dataDragonVersion,
@@ -161,11 +190,13 @@ async function getTFTStaticDataResults(locale: string) {
   const championHashes = getChampionsFromRawData(dataDragonData.champions, communityDragonData.champions, traits)
 
   const itemHashes = getItemsFromRawData(dataDragonData.items, communityDragonData.items)
+  const augmentHashes = getAugmentsFromRawData(dataDragonData.augments, communityDragonData.items)
 
   return {
     traits:    traitHashes,
     champions: championHashes,
     items:     itemHashes,
+    augments:  augmentHashes,
   }
 }
 
