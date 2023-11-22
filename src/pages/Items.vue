@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 
-import { useStaticDataStore } from '../stores/staticData'
+import { useStaticDataStore } from '../stores/StaticData'
 
 import ChampionIcon from '../components/ChampionIcon.vue'
 import SquareImage from '../components/SquareImage.vue'

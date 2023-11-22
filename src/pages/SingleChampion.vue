@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
-import { useStaticDataStore } from '../stores/staticData'
+import { useStaticDataStore } from '../stores/StaticData'
 
 import ChampionIcon from '../components/ChampionIcon.vue'
 import SquareImage from '../components/SquareImage.vue'
