@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
@@ -8,6 +8,9 @@ import { useStaticDataStore } from '../stores/StaticData'
 import ChampionIcon from '../components/ChampionIcon.vue'
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
+
+import Trait from '../models/tft/Trait'
+import Champion from '../models/tft/Champion'
 
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)
@@ -24,6 +27,24 @@ function toFixed(num: number) {
     return num
 
   return num.toFixed(2)
+}
+
+const activeTraitChampionId = ref<string | null>(null)
+
+function buildTraitChampionId(trait: Trait, champion: Champion) {
+  return `${trait.id}-${champion.id}`
+}
+
+function setActiveTraitChampionId(trait: Trait, champion: Champion) {
+  activeTraitChampionId.value = buildTraitChampionId(trait, champion)
+}
+
+function clearActiveTraitChampionId() {
+  activeTraitChampionId.value = null
+}
+
+function isActiveTraitChampionId(trait: Trait, champion: Champion) {
+  return activeTraitChampionId.value === buildTraitChampionId(trait, champion)
 }
 </script>
 
@@ -93,8 +114,18 @@ function toFixed(num: number) {
               <div v-html="trait.getAdjustedDescription()" class="text-secondary text-sm"></div>
 
               <div class="flex flex-wrap mt-4">
-                <router-link :to="champion.url" v-for="champion in trait.championIds.map(getChampion).sort((a, b) => a.compareByCost(b))" :key="champion.id" class="mr-2 mb-2">
-                  <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" />
+                <router-link :to="champion.url" v-for="champion in trait.championIds.map(getChampion).sort((a, b) => a.compareByCost(b))" :key="champion.id" class="relative mr-2 mb-2" @click="clearActiveTraitChampionId()">
+                  <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" @mouseenter="setActiveTraitChampionId(trait, champion)" @mouseleave="clearActiveTraitChampionId()" />
+                  <div :class="`absolute flex left-0 items-center -ml-2 border-2 border-slate-700 bg-slate-800 shadow z-50 shadow p-1.5 rounded top-1/2 -translate-y-1/2 w-max ${isActiveTraitChampionId(trait, champion) ? '' : 'hidden'}`">
+                    <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" @mouseenter="setActiveTraitChampionId(trait, champion)" @mouseleave="clearActiveTraitChampionId()" />
+                    <div class="ml-2">
+                      <div class="text-sm">{{ champion.name }}</div>
+
+                      <div class="flex mt-1">
+                        <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+                      </div>
+                    </div>
+                  </div>
                 </router-link>
               </div>
             </div>
