@@ -4,7 +4,7 @@ import SquareImage from '../components/SquareImage.vue'
 
 <template>
   <div class="home">
-    <SquareImage size="2xl" src="/images/chibi_gwen_soulfighter.png" class="home__main-icon" />
+    <SquareImage size="2xl" src="/images/chibi_kaisa_popstars.png" class="home__main-icon" />
     <div class="home__content">
       <h1 class="home__content__header">Get Ready for the Fight!</h1>
       <p class="home__content__description">Discover your favourite champions and build your dream team</p>
