@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 
-import SquareImage from './SquareImage.vue'
-
 import { useStaticDataStore } from '../stores/StaticData'
 
 const staticDataStore = useStaticDataStore()
@@ -48,7 +46,7 @@ function updateSelectedLocale(localeCode: string) {
   <div class="header">
     <div class="header__links">
       <router-link to="/" class="header__btn-link">
-        <SquareImage src="/images/logo.png" size="sm" />
+        <img src="/images/logo.png" class="w-8 h-8" />
         <span>TFT Fan</span>
       </router-link>
       <router-link to="/champions" class="header__btn-link">

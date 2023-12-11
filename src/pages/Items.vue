@@ -6,6 +6,8 @@ import { useStaticDataStore } from '../stores/StaticData'
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
 
+const baseURL = import.meta.env.BASE_URL
+
 const staticDataStore = useStaticDataStore()
 staticDataStore.loadData()
 
@@ -110,7 +112,7 @@ function toggleShowFilterOptions(e: MouseEvent) {
               <div class="text-xl font-semibold">{{ targetItem.name }}</div>
               <div class="flex flex-wrap">
                 <div v-for="baseStat in targetItem.getBaseStatsWithIcon()" :key="baseStat.id" class="flex mr-1">
-                  <SquareImage :src="`/images/scales/${baseStat.iconName}.png`" size="xs" />
+                  <img :src="`${baseURL}images/scales/${baseStat.iconName}.png`" class="w-4 h-4" />
                   <div class="text-xs text-secondary">{{ baseStat.value }}</div>
                 </div>
               </div>

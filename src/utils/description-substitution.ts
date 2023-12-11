@@ -1,3 +1,5 @@
+const baseURL = import.meta.env.BASE_URL
+
 function substituteScaleIcons(description: string) {
   const replaceableScales = description.match(/%i:[0-9A-Za-z*.:_]*%/gi)
 
@@ -6,7 +8,7 @@ function substituteScaleIcons(description: string) {
 
   return replaceableScales.reduce((substitutedDescription, replaceableScale) => {
     const scale = replaceableScale.replace(/%/gi, '').replace('i:', '')
-    return substitutedDescription.replace(replaceableScale, `<img src='/images/scales/${scale}.png' class='scale' />`)
+    return substitutedDescription.replace(replaceableScale, `<img src='${baseURL}images/scales/${scale}.png' class='scale' />`)
   }, description)
 }
 

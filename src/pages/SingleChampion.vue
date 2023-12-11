@@ -12,6 +12,8 @@ import LoadPage from '../components/LoadPage.vue'
 import Trait from '../models/tft/Trait'
 import { ChampionStatKeys, Champion } from '../models/tft/Champion'
 
+const baseURL = import.meta.env.BASE_URL
+
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
@@ -73,11 +75,11 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
 
         <div class="grid grid-cols-2 gap-1 mt-3">
           <div v-for="stat in basicStats" :key="stat" class="flex w-12">
-            <SquareImage :src="`/images/stats/${stat}.png`" size="xs" />
+            <img :src="`${baseURL}images/stats/${stat}.png`" class="w-4 h-4" />
             <div class="ml-0.5 text-xs">{{ toFixed(champion.stats[stat]) }}</div>
           </div>
           <div class="flex w-12">
-            <SquareImage src="/images/stats/cost.png" size="xs" />
+            <img src="/images/stats/cost.png" class="w-4 h-4" />
             <div class="ml-0.5 text-xs">{{ champion.cost }}</div>
           </div>
         </div>
@@ -96,7 +98,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
               <div class="flex mb-1">
                 <div class="font-semibold mr-2">{{ champion.ability.name }}</div>
                 <div class="flex mt-1 text-secondary">
-                  <SquareImage src="/images/stats/mana.png" size="xs" />
+                  <img src="/images/stats/mana.png" class="w-4 h-4" />
                   <div class="ml-0.5 text-xs">{{ champion.stats.initialMana }} / {{ champion.stats.mana }}</div>
                 </div>
               </div>
