@@ -145,7 +145,7 @@ function getItemsFromRawData(dataDragonItems: ItemDataRecords, communityDragonIt
       id: itemId,
       associatedTraits: itemObject.associatedTraits,
       composition: itemObject.composition,
-      desc: itemObject.desc,
+      desc: itemObject.desc ?? "",
       effects: itemObject.effects,
       from: itemObject.from,
       icon: getIconURL(itemObject.icon),
