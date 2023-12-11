@@ -17,7 +17,7 @@ const { getChampion, getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
 
 const route = useRoute()
-const champion = computed(() => staticDataStore.champions[route.params.id[0]])
+const champion = computed(() => staticDataStore.champions[route.params.id as string])
 const traits = computed(() => champion?.value?.traitIds?.map(getTrait.value))
 
 const basicStats: ChampionStatKeys[] = ['hp', 'damage', 'armor', 'magicResist', 'attackSpeed', 'critChance', 'range']
