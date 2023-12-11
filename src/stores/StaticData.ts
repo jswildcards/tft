@@ -9,6 +9,16 @@ import Trait from '../models/tft/Trait'
 import { getTFTStaticDataResults } from '../utils/get-tft-static-data-results'
 import { getLocales } from '../utils/api/tft/locales'
 
+interface AvailableLocaleDisplaysFormat {
+  simple: string
+  full: string
+}
+
+interface AvailableLocalDisplays {
+  code: string
+  display: AvailableLocaleDisplaysFormat
+}
+
 interface State {
   champions: Record<string, Champion>
   traits: Record<string, Trait>
@@ -18,7 +28,7 @@ interface State {
   selectedLocale: string | null
   currentLocale: string | null
   availableLocales: string[] | null
-  availableLocaleDisplays: Record<string, string>[] | null
+  availableLocaleDisplays: AvailableLocalDisplays[] | null
 
   isInitialized: boolean
   isDataLoaded: boolean
@@ -41,12 +51,12 @@ const useStaticDataStore = defineStore('staticData', {
   }),
   getters: {
     getTrait(state: State) {
-      return (traitId: string) => {
+      return (traitId: string): Trait => {
         return state.traits[traitId]
       }
     },
     getChampion(state: State) {
-      return (championId: string) => {
+      return (championId: string): Champion => {
         return state.champions[championId]
       }
     },
@@ -75,7 +85,10 @@ const useStaticDataStore = defineStore('staticData', {
       return Object.values(state.items).filter(item => item.other())
     },
     getLocaleDisplay(state: State) {
-      return (localeCode: string) => {
+      return (localeCode: string | null) => {
+        if(localeCode === null)
+          return null
+
         return state.availableLocaleDisplays?.find(({ code }) => code === localeCode)?.display
       }
     },
@@ -129,11 +142,14 @@ const useStaticDataStore = defineStore('staticData', {
       this.isDataLoaded = false
       this.currentLocale = this.selectedLocale
 
+      if(this.currentLocale === null)
+        return
+
       const { champions, traits, items, augments } = await getTFTStaticDataResults(this.currentLocale)
-      this.champions = champions
-      this.traits = traits
-      this.items = items
-      this.augments = augments
+      this.champions = champions ?? {}
+      this.traits = traits ?? {}
+      this.items = items ?? {}
+      this.augments = augments ?? {}
 
       this.isDataLoaded = true
     },

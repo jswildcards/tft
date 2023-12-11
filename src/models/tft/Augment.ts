@@ -59,11 +59,11 @@ class Augment {
     const replaceableValues = desc.match(/@[0-9A-Za-z*.:_]*@/gi)
 
     const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute: string | number = '?'
+      let substitute = '?'
       const value = this.effects[replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', '')]
 
       if(value) {
-        substitute = replaceableValue.includes('*100') ? (value * 100).toFixed() : value
+        substitute = replaceableValue.includes('*100') ? ((value as number) * 100).toFixed().toString() : value.toString()
       }
 
       return desc.replace(replaceableValue,  substitute)

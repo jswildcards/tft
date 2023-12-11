@@ -15,10 +15,19 @@ interface Item {
   image: ItemImage
 }
 
+type ItemDataRecords = Record<string, Item>
+
 interface ItemsResponse {
   type: string
   version: string
-  data: Record<string, Item>
+  data: ItemDataRecords
+}
+
+export type {
+  ItemImage,
+  Item,
+  ItemDataRecords,
+  ItemsResponse,
 }
 
 export default ItemsResponse

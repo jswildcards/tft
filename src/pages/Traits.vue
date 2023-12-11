@@ -25,7 +25,7 @@ const traits = computed(() => {
     })
 })
 
-const targetTraitId = ref(null)
+const targetTraitId = ref<string | null>(null)
 
 const targetTrait = computed(() => {
   if(targetTraitId.value === null)
@@ -34,7 +34,7 @@ const targetTrait = computed(() => {
   return staticDataStore.traits[targetTraitId.value]
 })
 
-function setTargetTraitId(traitId: string) {
+function setTargetTraitId(traitId: string | null) {
   targetTraitId.value = traitId
 }
 

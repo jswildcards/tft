@@ -1,5 +1,4 @@
-import {substituteScaleIcons} from '../../utils/description-substitution'
-import { Trait } from './Trait'
+import { substituteScaleIcons } from '../../utils/description-substitution'
 
 interface ChampionAbilityVariable {
   name: string
@@ -25,6 +24,8 @@ interface ChampionStats {
   mana: number
   range: number
 }
+
+type ChampionStatKeys = keyof ChampionStats
 
 interface ChampionObject {
   id: string
@@ -72,12 +73,12 @@ class Champion {
     const replaceableValues = this.ability.desc.match(/@[0-9A-Za-z*.:_]*@/gi)
 
     const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute: string | number = '?'
+      let substitute = '?'
       const values = this.ability.variables.find(variable => variable.name === replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', ''))?.value
 
       if(values) {
         const requiredValues = values.slice(1, 4).map(value => replaceableValue.includes('*100') ? (value * 100).toFixed() : value)
-        substitute = new Set(requiredValues).size === 1 ? requiredValues[0] : requiredValues.join(' / ')
+        substitute = new Set(requiredValues).size === 1 ? requiredValues[0].toString() : requiredValues.join(' / ')
       }
 
       return desc.replace(replaceableValue,  substitute)
@@ -91,11 +92,15 @@ class Champion {
   }
 }
 
-export {
+export type {
   ChampionAbility,
   ChampionAbilityVariable,
   ChampionObject,
   ChampionStats,
+  ChampionStatKeys,
+}
+
+export {
   Champion,
 }
 

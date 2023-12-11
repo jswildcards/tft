@@ -10,17 +10,17 @@ import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
 
 import Trait from '../models/tft/Trait'
-import Champion from '../models/tft/Champion'
+import { ChampionStatKeys, Champion } from '../models/tft/Champion'
 
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
 
 const route = useRoute()
-const champion = computed(() => staticDataStore.champions[route.params.id])
+const champion = computed(() => staticDataStore.champions[route.params.id[0]])
 const traits = computed(() => champion?.value?.traitIds?.map(getTrait.value))
 
-const basicStats = ['hp', 'damage', 'armor', 'magicResist', 'attackSpeed', 'critChance', 'range']
+const basicStats: ChampionStatKeys[] = ['hp', 'damage', 'armor', 'magicResist', 'attackSpeed', 'critChance', 'range']
 
 function toFixed(num: number) {
   if(Number.isInteger(num))

@@ -2,7 +2,13 @@ import { Champion } from '../models/tft/Champion'
 import { Trait } from '../models/tft/Trait'
 import { Item } from '../models/tft/Item'
 import { Augment } from '../models/tft/Augment'
-import CommunityDragonResponse from '../models/api/community-dragon/Response'
+import { Response as CommunityDragonResponse, Item as CDragonItem } from '../models/api/community-dragon/Response'
+import { Champion as CDragonChampion } from '../models/api/community-dragon/Champion'
+import { Trait as CDragonTrait } from '../models/api/community-dragon/Trait'
+import { ChampionDataRecords } from '../models/api/data-dragon/ChampionsResponse'
+import { TraitDataRecords } from '../models/api/data-dragon/TraitsResponse'
+import { ItemDataRecords } from '../models/api/data-dragon/ItemsResponse'
+import { AugmentDataRecords } from '../models/api/data-dragon/AugmentsResponse'
 
 import { getVersions } from '../utils/api/tft/versions'
 import { getCommunityDragonData } from '../utils/api/community-dragon'
@@ -13,18 +19,28 @@ import {
   getAugments
 } from '../utils/api/data-dragon'
 
+interface DataDragonRecords {
+  champions: ChampionDataRecords
+  traits: TraitDataRecords
+  items: ItemDataRecords
+  augments: AugmentDataRecords
+}
+
 async function extractCommunityDragonRecords(communityDragonVersion: string, setVersion: string, locale: string) {
   const data: CommunityDragonResponse = await getCommunityDragonData(communityDragonVersion, locale)
   const currentSet = data.setData.find(set => set.mutator === setVersion)
 
+  if(currentSet === undefined)
+    return
+
   return {
-    champions: currentSet?.champions,
-    traits:    currentSet?.traits,
+    champions: currentSet.champions,
+    traits:    currentSet.traits,
     items:     data.items,
   }
 }
 
-async function extractDataDragonRecords(dataDragonVersion: string) {
+async function extractDataDragonRecords(dataDragonVersion: string): Promise<DataDragonRecords> {
   return {
     champions: (await getChampions(dataDragonVersion)).data,
     traits:    (await getTraits(dataDragonVersion)).data,
@@ -33,15 +49,18 @@ async function extractDataDragonRecords(dataDragonVersion: string) {
   }
 }
 
-function getIconURL(path: string) {
+function getIconURL(path: string): string {
   return `https://raw.communitydragon.org/latest/game/${path.toLowerCase().replace('.tex', '.png').replace('.dds', '.png')}`
 }
 
-function getTraitsFromRawData(dataDragonTraits, communityDragonTraits) {
+function getTraitsFromRawData(dataDragonTraits: TraitDataRecords, communityDragonTraits: CDragonTrait[]): Record<string, Trait> {
   const traitIds = Object.keys(dataDragonTraits)
 
   return traitIds.reduce((traits, traitId) => {
     const traitObject = communityDragonTraits.find(trait => trait.apiName === traitId)
+
+    if(traitObject === undefined)
+      return traits
 
     const trait = new Trait({
       id: traitId,
@@ -62,16 +81,20 @@ function getOriginalChampionName(championId: string) {
   return championId.toLowerCase().replace(/tft([0-9]*)(b?)_/gi, '')
 }
 
-function getChampionsFromRawData(dataDragonChampions, communityDragonChampions, traits: Trait[]) {
+function getChampionsFromRawData(dataDragonChampions: ChampionDataRecords, communityDragonChampions: CDragonChampion[], traits: Trait[]) {
   const championIds = Object.keys(dataDragonChampions).sort((championIdA, championIdB) => {
     return getOriginalChampionName(championIdA) > getOriginalChampionName(championIdB) ? 1 : -1
   })
 
   return championIds.reduce((champions, championId) => {
     const championObject = communityDragonChampions.find(champion => champion.apiName === championId)
-    const championTraits = championObject.traits.map(traitName => {
+
+    if(championObject === undefined)
+      return champions
+
+    const championTraits: Trait[] = championObject.traits.map(traitName => {
       return traits.find(trait => trait.name === traitName)
-    })
+    }).filter((trait?: Trait): trait is Trait => trait !== undefined)
 
     const champion = new Champion({
       id:      championObject.characterName,
@@ -80,12 +103,12 @@ function getChampionsFromRawData(dataDragonChampions, communityDragonChampions, 
       icon:    getIconURL(championObject.tileIcon),
       name:    championObject.name,
       stats:   championObject.stats,
-      traitIds:  championTraits.map(trait => trait?.id),
+      traitIds:  championTraits.map((trait: Trait) => trait.id),
     })
 
     champion.ability.icon = getIconURL(champion.ability.icon)
     championTraits.forEach(trait => {
-      trait?.addChampionId(getOriginalChampionName(champion.id))
+      trait.addChampionId(getOriginalChampionName(champion.id))
     })
 
     return {
@@ -95,7 +118,7 @@ function getChampionsFromRawData(dataDragonChampions, communityDragonChampions, 
   }, {})
 }
 
-function getItemsFromRawData(dataDragonItems, communityDragonItems) {
+function getItemsFromRawData(dataDragonItems: ItemDataRecords, communityDragonItems: CDragonItem[]) {
   // Temporarily disabling non-related items
   const excludedItemIds = [
     'TFT_Item_UnusableSlot',
@@ -114,6 +137,9 @@ function getItemsFromRawData(dataDragonItems, communityDragonItems) {
 
   const items: Record<string, Item> = itemIds.reduce((items, itemId) => {
     const itemObject = communityDragonItems.find(item => item.apiName === itemId)
+
+    if(itemObject === undefined)
+      return items
 
     const item = new Item({
       id: itemId,
@@ -146,11 +172,14 @@ function getItemsFromRawData(dataDragonItems, communityDragonItems) {
   return items
 }
 
-function getAugmentsFromRawData(dataDragonAugments, communityDragonAugments) {
+function getAugmentsFromRawData(dataDragonAugments: AugmentDataRecords, communityDragonAugments: CDragonItem[]) {
   const augmentIds = Object.keys(dataDragonAugments)
 
   const augments: Record<string, Augment> = augmentIds.reduce((augments, augmentId) => {
     const augmentObject = communityDragonAugments.find(augment => augment.apiName === augmentId)
+
+    if(augmentObject === undefined)
+      return augments
 
     const augment = new Augment({
       id: augmentId,
@@ -183,6 +212,15 @@ async function getTFTStaticDataResults(locale: string) {
 
   const communityDragonData = await extractCommunityDragonRecords(communityDragonVersion, setVersion, locale)
   const dataDragonData = await extractDataDragonRecords(dataDragonVersion)
+
+  if(communityDragonData === undefined) {
+    return {
+      traits: null,
+      champions: null,
+      items: null,
+      augments: null,
+    }
+  }
 
   const traitHashes = getTraitsFromRawData(dataDragonData.traits, communityDragonData.traits)
   const traits = Object.values(traitHashes)

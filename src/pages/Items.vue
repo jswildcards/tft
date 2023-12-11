@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { storeToRefs } from 'pinia'
 
 import { useStaticDataStore } from '../stores/StaticData'
 
-import ChampionIcon from '../components/ChampionIcon.vue'
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
 
 const staticDataStore = useStaticDataStore()
-const { getChampion, getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
 
 const FILTER_ALL_ITEMS = 'All'
@@ -36,7 +33,7 @@ const searchText = ref("")
 
 const filterButton = ref(null)
 
-const targetItemId = ref(null)
+const targetItemId = ref<string | null>(null)
 
 const filterOption = ref(FILTER_ALL_ITEMS)
 const showFilterOptions = ref(false)
@@ -82,7 +79,7 @@ function setFilterOption(option: string) {
   filterOption.value = option
 }
 
-function setTargetItemId(itemId: string) {
+function setTargetItemId(itemId: string | null) {
   targetItemId.value = itemId
 }
 
@@ -94,8 +91,8 @@ function setActiveFilterOption(option: string) {
   return filterOption.value === option ? 'items__button-group__button--active' : ''
 }
 
-function toggleShowFilterOptions(e) {
-  if(e.target === filterButton.value || e.target.parentNode === filterButton.value)
+function toggleShowFilterOptions(e: MouseEvent) {
+  if(e.target === filterButton.value || (e.target as HTMLElement)?.parentNode === filterButton.value)
     showFilterOptions.value = !showFilterOptions.value
   else
     showFilterOptions.value = false
@@ -177,7 +174,7 @@ function toggleShowFilterOptions(e) {
         <div class="mt-1 text-sm">{{ item.name }}</div>
 
         <div class="flex mt-1">
-          <SquareImage v-for="(item, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId])" :key="item.id" :src="item.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+          <SquareImage v-for="(baseItem, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId])" :key="baseItem.id" :src="baseItem.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
         </div>
       </button>
     </div>

@@ -15,10 +15,19 @@ interface Champion {
   image: ChampionImage
 }
 
+type ChampionDataRecords = Record<string, Champion>
+
 interface ChampionsResponse {
   type: string
   version: string
-  data: Record<string, Champion>
+  data: ChampionDataRecords
+}
+
+export type {
+  ChampionImage,
+  Champion,
+  ChampionDataRecords,
+  ChampionsResponse,
 }
 
 export default ChampionsResponse

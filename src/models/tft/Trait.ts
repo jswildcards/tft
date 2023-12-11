@@ -68,7 +68,7 @@ class Trait {
       const replaceableValues = modifiedDesc.match(/@[0-9A-Za-z*.:_]*@/gi)
 
       modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-        let substitute: string | number = '?'
+        let substitute = '?'
         let value = effect.variables[replaceableValue.replace(/@/gi, '').replace('*100', '')]
 
         if(value === undefined) {
@@ -76,8 +76,8 @@ class Trait {
         }
 
         if(value) {
-          const requiredValue = replaceableValue.includes('*100') ? (value * 100).toFixed() : value
-          substitute = requiredValue
+          const requiredValue = replaceableValue.includes('*100') ? ((value as number) * 100).toFixed() : value
+          substitute = requiredValue.toString()
         }
 
         return desc.replace(replaceableValue,  substitute)
@@ -102,8 +102,8 @@ class Trait {
       }
 
       if(value) {
-        const requiredValue = replaceableValue.includes('*100') ? (value * 100).toFixed() : value
-        substitute = requiredValue
+        const requiredValue = replaceableValue.includes('*100') ? ((value as number) * 100).toFixed() : value
+        substitute = requiredValue.toString()
       }
 
       return desc.replace(replaceableValue,  substitute)
@@ -113,8 +113,11 @@ class Trait {
   }
 }
 
-export {
+export type {
   TraitEffect,
+}
+
+export {
   Trait,
 }
 

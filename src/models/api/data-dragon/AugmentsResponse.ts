@@ -29,11 +29,22 @@ interface AugmentContainer {
   image: AugmentContainerImage
 }
 
+type AugmentDataRecords = Record<string, Augment>
+
 interface AugmentsResponse {
   type: string
   version: string
   "augment-container": AugmentContainer
-  data: Record<string, Augment>
+  data: AugmentDataRecords
+}
+
+export type {
+  AugmentImage,
+  Augment,
+  AugmentContainerImage,
+  AugmentContainer,
+  AugmentDataRecords,
+  AugmentsResponse,
 }
 
 export default AugmentsResponse

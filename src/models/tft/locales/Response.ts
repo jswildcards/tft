@@ -3,7 +3,7 @@ interface LocalesResponse {
   default: string
 }
 
-export {
+export type {
   LocalesResponse,
 }
 

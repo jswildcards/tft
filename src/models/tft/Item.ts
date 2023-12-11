@@ -140,7 +140,7 @@ class Item {
       return {
         id,
         iconName,
-        value: (value < 1 ? `${parseInt(value * 100)}%` : value)
+        value: typeof(value) === 'number' && value < 1 ? `${(value * 100).toFixed()}%` : value,
       }
     })
   }
@@ -150,11 +150,11 @@ class Item {
     const replaceableValues = desc.match(/@[0-9A-Za-z*.:_]*@/gi)
 
     const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute: string | number = '?'
+      let substitute = '?'
       const value = this.effects[replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', '')]
 
       if(value) {
-        substitute = replaceableValue.includes('*100') ? (value * 100).toFixed() : value
+        substitute = (replaceableValue.includes('*100') ? ((value as number) * 100).toFixed() : value).toString()
       }
 
       return desc.replace(replaceableValue,  substitute)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from 'vue'
+import { toRefs } from 'vue'
 
 interface Props {
   isLoaded: boolean

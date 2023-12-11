@@ -39,7 +39,7 @@ function updateSelectedLocale(localeCode: string) {
 
       <div class="header__modal__button-group">
         <button v-for="localeCode in staticDataStore.availableLocales" :key="localeCode" @click="updateSelectedLocale(localeCode)" :class="`header__modal__button-group__button ${setActiveLocale(localeCode)}`">
-          {{ getLocaleDisplay(localeCode).full }}
+          {{ getLocaleDisplay(localeCode)?.full }}
         </button>
       </div>
     </div>
@@ -68,7 +68,7 @@ function updateSelectedLocale(localeCode: string) {
     <div>
       <button v-if="staticDataStore.isInitialized" class="header__option-locale" @click="openModal()">
         <div>🌐</div>
-        <div class="ml-2">{{ getLocaleDisplay(staticDataStore.selectedLocale).simple }}</div>
+        <div class="ml-2">{{ getLocaleDisplay(staticDataStore.selectedLocale)?.simple }}</div>
       </button>
     </div>
   </div>

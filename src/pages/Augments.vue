@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { storeToRefs } from 'pinia'
 
 import { useStaticDataStore } from '../stores/StaticData'
 
@@ -9,10 +8,9 @@ import LoadPage from '../components/LoadPage.vue'
 import Augment from '../models/tft/Augment'
 
 const staticDataStore = useStaticDataStore()
-const { getChampion, getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
 
-const targetAugmentId = ref(null)
+const targetAugmentId = ref<string | null>(null)
 
 const targetAugment = computed(() => {
   if(targetAugmentId.value === null)
@@ -21,7 +19,7 @@ const targetAugment = computed(() => {
   return staticDataStore.augments[targetAugmentId.value]
 })
 
-function setTargetAugmentId(augmentId: string) {
+function setTargetAugmentId(augmentId: string | null) {
   targetAugmentId.value = augmentId
 }
 

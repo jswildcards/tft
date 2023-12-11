@@ -15,4 +15,9 @@ interface Trait {
   name: string
 }
 
+export type {
+  TraitEffect,
+  Trait,
+}
+
 export default Trait

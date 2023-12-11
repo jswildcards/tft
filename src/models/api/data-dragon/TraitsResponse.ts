@@ -15,10 +15,19 @@ interface Trait {
   image: TraitImage
 }
 
+type TraitDataRecords = Record<string, Trait>
+
 interface TraitsResponse {
   type: string
   version: string
-  data: Record<string, Trait>
+  data: TraitDataRecords
+}
+
+export type {
+  TraitImage,
+  Trait,
+  TraitDataRecords,
+  TraitsResponse,
 }
 
 export default TraitsResponse

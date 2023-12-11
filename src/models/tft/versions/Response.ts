@@ -4,7 +4,7 @@ interface VersionsResponse {
   set: string
 }
 
-export {
+export type {
   VersionsResponse,
 }
 

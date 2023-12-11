@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from 'vue'
+import { toRefs } from 'vue'
 
 import SquareImage from '../components/SquareImage.vue'
 
 interface Props {
   src: string
   cost: number
-  size?: string
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl"
 }
 
 const props = withDefaults(defineProps<Props>(), {

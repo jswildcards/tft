@@ -36,4 +36,11 @@ interface Champion {
   traits: string[]
 }
 
+export type {
+  ChampionAbilityVariable,
+  ChampionAbility,
+  ChampionStats,
+  Champion,
+}
+
 export default Champion

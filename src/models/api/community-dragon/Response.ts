@@ -36,4 +36,11 @@ interface Response {
   sets: Set[]
 }
 
+export type {
+  Item,
+  SetData,
+  Set,
+  Response,
+}
+
 export default Response
