@@ -1,3 +1,5 @@
+#!/bin/sh
+
 url="https://ddragon.leagueoflegends.com/api/versions.json"
 
 # get all versions
