@@ -24,7 +24,10 @@ const traits = computed(() => champion?.value?.traitIds?.map(getTrait.value))
 
 const basicStats: ChampionStatKeys[] = ['hp', 'damage', 'armor', 'magicResist', 'attackSpeed', 'critChance', 'range']
 
-function toFixed(num: number) {
+function toFixed(num: number | null) {
+  if(num === null)
+    return null
+
   if(Number.isInteger(num))
     return num
 
