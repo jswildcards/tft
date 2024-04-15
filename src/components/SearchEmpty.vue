@@ -1,10 +1,6 @@
-<script setup lang="ts">
-import SquareImage from '../components/SquareImage.vue'
-</script>
-
 <template>
   <div class="search-empty">
-    <SquareImage size="xl" src="/images/blitzcrank_sad_confused_inventory.png" />
+    <img class="w-24 h-24" src="/images/blitzcrank_sad_confused_inventory.png" />
     <div class="text-secondary">Nothing's here...</div>
   </div>
 </template>
