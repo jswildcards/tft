@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { CLDRFramework } from '@phensley/cldr';
 
 import Augment from '../models/tft/Augment'
 import Champion from '../models/tft/Champion'
@@ -8,16 +7,6 @@ import Trait from '../models/tft/Trait'
 
 import { getTFTStaticDataResults } from '../utils/get-tft-static-data-results'
 import { getLocales } from '../utils/api/tft/locales'
-
-interface AvailableLocaleDisplaysFormat {
-  simple: string
-  full: string
-}
-
-interface AvailableLocalDisplays {
-  code: string
-  display: AvailableLocaleDisplaysFormat
-}
 
 interface State {
   champions: Record<string, Champion>
@@ -28,7 +17,7 @@ interface State {
   selectedLocale: string | null
   currentLocale: string | null
   availableLocales: string[] | null
-  availableLocaleDisplays: AvailableLocalDisplays[] | null
+  availableLocaleDisplays: Record<string, string> | null
 
   isInitialized: boolean
   isDataLoaded: boolean
@@ -60,8 +49,14 @@ const useStaticDataStore = defineStore('staticData', {
         return state.champions[championId]
       }
     },
+    getAllChampionsSortedByName(state: State) {
+      return Object.values(state.champions).sort((a, b) => a.compareByName(b))
+    },
     getAllChampionsSortedByCost(state: State) {
-      return Object.values(state.champions).sort((a, b) => a.compareByCost(b))
+      return Object.values(state.champions).sort((a, b) => a.compareByName(b)).sort((a, b) => a.compareByCost(b))
+    },
+    getAllAugments(state: State) {
+      return Object.values(state.augments).sort((a, b) => a.compare(b))
     },
     getAllBaseItems(state: State) {
       return Object.values(state.items).filter(item => item.base())
@@ -84,14 +79,6 @@ const useStaticDataStore = defineStore('staticData', {
     getAllOtherItems(state: State) {
       return Object.values(state.items).filter(item => item.other())
     },
-    getLocaleDisplay(state: State) {
-      return (localeCode: string | null) => {
-        if(localeCode === null)
-          return null
-
-        return state.availableLocaleDisplays?.find(({ code }) => code === localeCode)?.display
-      }
-    },
     isCorrectLocale(state: State) {
       return state.currentLocale === state.selectedLocale
     },
@@ -103,34 +90,12 @@ const useStaticDataStore = defineStore('staticData', {
 
       this.isInitialized = false
 
-      const { available: availableLocales, default: defaultLocale } = await getLocales()
-      this.availableLocales = availableLocales
-      this.selectedLocale = defaultLocale
+      const available_languages = await getLocales()
 
-      const framework = new CLDRFramework({
-        asyncLoader: async function(language: string) {
-          const resources = await fetch(`https://cdn.jsdelivr.net/npm/@phensley/cldr@1.7.3/packs/${language}.json`)
-          return resources.json()
-        }
-      })
+      this.availableLocales = Object.keys(available_languages)
+      this.selectedLocale = "en_us"
 
-      this.availableLocaleDisplays = await Promise.all(
-        this.availableLocales.map(
-          async (code) => {
-            const cldr = await framework.getAsync(code)
-            const language = cldr.General.getLanguageDisplayName(code)
-            const region = cldr.General.getRegionDisplayName(code)
-
-            return {
-              code,
-              display: {
-                full: `${language} (${region})`,
-                simple: language,
-              },
-            }
-          }
-        )
-      )
+      this.availableLocaleDisplays = available_languages
 
       this.isInitialized = true
       this.loadData()

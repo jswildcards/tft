@@ -146,21 +146,7 @@ class Item {
   }
 
   getAdjustedDescription() {
-    const desc = this.desc
-    const replaceableValues = desc.match(/@[0-9A-Za-z*.:_]*@/gi)
-
-    const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute = '?'
-      const value = this.effects[replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', '')]
-
-      if(value) {
-        substitute = (replaceableValue.includes('*100') ? ((value as number) * 100).toFixed() : value).toString()
-      }
-
-      return desc.replace(replaceableValue,  substitute)
-    }, desc) ?? desc
-
-    return substituteScaleIcons(modifiedDesc)
+    return substituteScaleIcons(this.desc)
   }
 }
 

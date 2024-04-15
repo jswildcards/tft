@@ -12,6 +12,7 @@ interface AugmentObject {
   incompatibleTraits: string[]
   name: string
   unique: boolean
+  tier: number
 }
 
 class Augment {
@@ -26,6 +27,7 @@ class Augment {
   name: string
   unique: boolean
   composableItemIds: string[]
+  tier: number
 
   constructor(object: AugmentObject) {
     const {
@@ -39,6 +41,7 @@ class Augment {
       incompatibleTraits,
       name,
       unique,
+      tier,
     } = object
 
     this.id = id
@@ -51,25 +54,27 @@ class Augment {
     this.incompatibleTraits = incompatibleTraits
     this.name = name
     this.unique = unique
+    this.tier = tier
     this.composableItemIds = []
   }
 
   getAdjustedDescription() {
-    const desc = this.desc
-    const replaceableValues = desc.match(/@[0-9A-Za-z*.:_]*@/gi)
+    return substituteScaleIcons(this.desc)
+  }
 
-    const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute = '?'
-      const value = this.effects[replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', '')]
+  compare(other: Augment) {
+    if(this.compareByTier(other) !== 0)
+      return this.compareByTier(other)
 
-      if(value) {
-        substitute = replaceableValue.includes('*100') ? ((value as number) * 100).toFixed().toString() : value.toString()
-      }
+    return this.compareByName(other)
+  }
 
-      return desc.replace(replaceableValue,  substitute)
-    }, desc) ?? desc
+  compareByTier(other: Augment) {
+    return this.tier - other.tier
+  }
 
-    return substituteScaleIcons(modifiedDesc)
+  compareByName(other: Augment) {
+    return this.name < other.name ? -1 : 1
   }
 }
 

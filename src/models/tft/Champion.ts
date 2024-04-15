@@ -65,26 +65,15 @@ class Champion {
     this.name = name
     this.stats = stats
     this.traitIds = traitIds
-    this.url = `/champions/${this.id.toLowerCase().replace(/tft([0-9]*)(b?)_/gi, '')}`
+    this.url = `/champions/${this.id}`
   }
 
   getAdjustedAbilityDescription() {
-    const desc = this.ability.desc
-    const replaceableValues = this.ability.desc.match(/@[0-9A-Za-z*.:_]*@/gi)
+    return substituteScaleIcons(this.ability.desc)
+  }
 
-    const modifiedDesc = replaceableValues?.reduce((desc, replaceableValue) => {
-      let substitute = '?'
-      const values = this.ability.variables.find(variable => variable.name === replaceableValue.replace('Modified', '').replace(/@/gi, '').replace('*100', ''))?.value
-
-      if(values) {
-        const requiredValues = values.slice(1, 4).map(value => replaceableValue.includes('*100') ? (value * 100).toFixed() : value)
-        substitute = new Set(requiredValues).size === 1 ? requiredValues[0].toString() : requiredValues.join(' / ')
-      }
-
-      return desc.replace(replaceableValue,  substitute)
-    }, desc) ?? desc
-
-    return substituteScaleIcons(modifiedDesc)
+  compareByName(other: Champion) {
+      return this.name < other.name ? -1 : 1
   }
 
   compareByCost(other: Champion) {

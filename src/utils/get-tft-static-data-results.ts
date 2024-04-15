@@ -1,240 +1,107 @@
-import { Champion } from '../models/tft/Champion'
-import { Trait } from '../models/tft/Trait'
-import { Item } from '../models/tft/Item'
-import { Augment } from '../models/tft/Augment'
-import { Response as CommunityDragonResponse, Item as CDragonItem } from '../models/api/community-dragon/Response'
-import { Champion as CDragonChampion } from '../models/api/community-dragon/Champion'
-import { Trait as CDragonTrait } from '../models/api/community-dragon/Trait'
-import { ChampionDataRecords } from '../models/api/data-dragon/ChampionsResponse'
-import { TraitDataRecords } from '../models/api/data-dragon/TraitsResponse'
-import { ItemDataRecords } from '../models/api/data-dragon/ItemsResponse'
-import { AugmentDataRecords } from '../models/api/data-dragon/AugmentsResponse'
+import Augment from "../models/tft/Augment"
+import Champion from "../models/tft/Champion"
+import Item from "../models/tft/Item"
+import Trait from "../models/tft/Trait"
+import VersionsResponse from "../models/tft/versions/Response"
+import getVersions from "./api/tft/versions"
 
-import { getVersions } from '../utils/api/tft/versions'
-import { getCommunityDragonData } from '../utils/api/community-dragon'
-import {
-  getChampions,
-  getTraits,
-  getItems,
-  getAugments
-} from '../utils/api/data-dragon'
-
-interface DataDragonRecords {
-  champions: ChampionDataRecords
-  traits: TraitDataRecords
-  items: ItemDataRecords
-  augments: AugmentDataRecords
-}
-
-async function extractCommunityDragonRecords(communityDragonVersion: string, setVersion: string, locale: string) {
-  const data: CommunityDragonResponse = await getCommunityDragonData(communityDragonVersion, locale)
-  const currentSet = data.setData.find(set => set.mutator === setVersion)
-
-  if(currentSet === undefined)
-    return
-
-  return {
-    champions: currentSet.champions,
-    traits:    currentSet.traits,
-    items:     data.items,
-  }
-}
-
-async function extractDataDragonRecords(dataDragonVersion: string): Promise<DataDragonRecords> {
-  return {
-    champions: (await getChampions(dataDragonVersion)).data,
-    traits:    (await getTraits(dataDragonVersion)).data,
-    items:     (await getItems(dataDragonVersion)).data,
-    augments:  (await getAugments(dataDragonVersion)).data,
-  }
-}
-
-function getIconURL(path: string): string {
-  return `https://raw.communitydragon.org/latest/game/${path.toLowerCase().replace('.tex', '.png').replace('.dds', '.png')}`
-}
-
-function getTraitsFromRawData(dataDragonTraits: TraitDataRecords, communityDragonTraits: CDragonTrait[]): Record<string, Trait> {
-  const traitIds = Object.keys(dataDragonTraits)
-
-  return traitIds.reduce((traits, traitId) => {
-    const traitObject = communityDragonTraits.find(trait => trait.apiName === traitId)
-
-    if(traitObject === undefined)
-      return traits
-
-    const trait = new Trait({
-      id: traitId,
-      desc: traitObject.desc,
-      effects: traitObject.effects,
-      icon: getIconURL(traitObject.icon),
-      name: traitObject.name,
-    })
-
-    return {
-      ...traits,
-      [traitId]: trait,
-    }
-  }, {})
-}
-
-function getOriginalChampionName(championId: string) {
-  return championId.toLowerCase().replace(/tft([0-9]*)(b?)_/gi, '')
-}
-
-function getChampionsFromRawData(dataDragonChampions: ChampionDataRecords, communityDragonChampions: CDragonChampion[], traits: Trait[]) {
-  const championIds = Object.keys(dataDragonChampions).sort((championIdA, championIdB) => {
-    return getOriginalChampionName(championIdA) > getOriginalChampionName(championIdB) ? 1 : -1
-  })
-
-  return championIds.reduce((champions, championId) => {
-    const championObject = communityDragonChampions.find(champion => champion.apiName === championId)
-
-    if(championObject === undefined)
-      return champions
-
-    const championTraits: Trait[] = championObject.traits.map(traitName => {
-      return traits.find(trait => trait.name === traitName)
-    }).filter((trait?: Trait): trait is Trait => trait !== undefined)
-
-    const champion = new Champion({
-      id:      championObject.characterName,
-      ability: championObject.ability,
-      cost:    championObject.cost,
-      icon:    getIconURL(championObject.tileIcon),
-      name:    championObject.name,
-      stats:   championObject.stats,
-      traitIds:  championTraits.map((trait: Trait) => trait.id),
-    })
-
-    champion.ability.icon = getIconURL(champion.ability.icon)
-    championTraits.forEach(trait => {
-      trait.addChampionId(getOriginalChampionName(champion.id))
-    })
-
-    return {
-      ...champions,
-      [getOriginalChampionName(champion.id)]: champion,
-    }
-  }, {})
-}
-
-function getItemsFromRawData(dataDragonItems: ItemDataRecords, communityDragonItems: CDragonItem[]) {
-  // Temporarily disabling non-related items
-  const excludedItemIds = [
-    'TFT_Item_UnusableSlot',
-  ]
-
-  const excludedItemNames = [
-    '',
-  ]
-
-  const itemIds = Object.keys(dataDragonItems).map(itemId => {
-    if(itemId.match('/'))
-      return itemId.split('/')[1]
-
-    return itemId
-  })
-
-  const items: Record<string, Item> = itemIds.reduce((items, itemId) => {
-    const itemObject = communityDragonItems.find(item => item.apiName === itemId)
-
-    if(itemObject === undefined)
-      return items
-
-    const item = new Item({
-      id: itemId,
-      associatedTraits: itemObject.associatedTraits,
-      composition: itemObject.composition,
-      desc: itemObject.desc ?? "",
-      effects: itemObject.effects,
-      from: itemObject.from,
-      icon: getIconURL(itemObject.icon),
-      incompatibleTraits: itemObject.incompatibleTraits,
-      name: itemObject.name,
-      unique: itemObject.unique,
-    })
-
-    if(excludedItemNames.includes(item.name) || excludedItemIds.includes(item.id))
-      return items
-
-    return {
-      ...items,
-      [itemId]: item,
-    }
-  }, {})
-
-  Object.values(items).filter(item => item.composable()).forEach(item => {
-    item.composition.forEach(baseItemId => {
-      items[baseItemId].addComposableItemId(item.id)
-    })
-  })
-
-  return items
-}
-
-function getAugmentsFromRawData(dataDragonAugments: AugmentDataRecords, communityDragonAugments: CDragonItem[]) {
-  const augmentIds = Object.keys(dataDragonAugments)
-
-  const augments: Record<string, Augment> = augmentIds.reduce((augments, augmentId) => {
-    const augmentObject = communityDragonAugments.find(augment => augment.apiName === augmentId)
-
-    if(augmentObject === undefined)
-      return augments
-
-    const augment = new Augment({
-      id: augmentId,
-      associatedTraits: augmentObject.associatedTraits,
-      composition: augmentObject.composition,
-      desc: augmentObject.desc,
-      effects: augmentObject.effects,
-      from: augmentObject.from,
-      icon: getIconURL(augmentObject.icon),
-      incompatibleTraits: augmentObject.incompatibleTraits,
-      name: augmentObject.name,
-      unique: augmentObject.unique,
-    })
-
-    return {
-      ...augments,
-      [augmentId]: augment,
-    }
-  }, {})
-
-  return augments
+async function fetch_json(url: string) {
+    const response = await fetch(url)
+    return response.json()
 }
 
 async function getTFTStaticDataResults(locale: string) {
   const {
-    dataDragon: dataDragonVersion,
-    communityDragon: communityDragonVersion,
-    set: setVersion,
-  } = await getVersions()
+    data_dragon: data_dragon_version,
+  }: VersionsResponse = await getVersions()
 
-  const communityDragonData = await extractCommunityDragonRecords(communityDragonVersion, setVersion, locale)
-  const dataDragonData = await extractDataDragonRecords(dataDragonVersion)
-
-  if(communityDragonData === undefined) {
-    return {
-      traits: null,
-      champions: null,
-      items: null,
-      augments: null,
+  const augments = await fetch_json(`https://raw.githubusercontent.com/jswildcards/tft-data/main/${data_dragon_version}/${locale}/augments.json`).then(augments => {
+    for(const [augment_id, augment] of Object.entries(augments)) {
+      augments[augment_id] = new Augment({
+        id: augment_id,
+        associatedTraits: augment.associated_traits,
+        composition: augment.composition,
+        desc: augment.description,
+        effects: augment.effects,
+        from: null,
+        icon: augment.icon,
+        incompatibleTraits: augment.incompatible_traits,
+        name: augment.name,
+        unique: augment.unique,
+        tier: augment.tier,
+      })
     }
-  }
 
-  const traitHashes = getTraitsFromRawData(dataDragonData.traits, communityDragonData.traits)
-  const traits = Object.values(traitHashes)
+    return augments
+  })
 
-  const championHashes = getChampionsFromRawData(dataDragonData.champions, communityDragonData.champions, traits)
+  const champions = await fetch_json(`https://raw.githubusercontent.com/jswildcards/tft-data/main/${data_dragon_version}/${locale}/champions.json`).then(champions => {
+    for(const [champion_id, champion] of Object.entries(champions)) {
+      champions[champion_id] = new Champion({
+        id: champion_id,
+        ability: {
+          desc: champion.ability.description,
+          icon: champion.ability.icon,
+          name: champion.ability.name,
+          variables: champion.ability.variables,
+        },
+        cost: champion.cost,
+        icon: champion.icon,
+        name: champion.name,
+        stats: champion.stats,
+        traitIds: champion.trait_ids,
+      })
+    }
 
-  const itemHashes = getItemsFromRawData(dataDragonData.items, communityDragonData.items)
-  const augmentHashes = getAugmentsFromRawData(dataDragonData.augments, communityDragonData.items)
+    return champions
+  })
+
+  const items = await fetch_json(`https://raw.githubusercontent.com/jswildcards/tft-data/main/${data_dragon_version}/${locale}/items.json`).then(items => {
+    for(const [item_id, item] of Object.entries(items)) {
+      items[item_id] = new Item({
+        id: item_id,
+        associatedTraits: item.associated_traits,
+        composition: item.composition,
+        desc: item.description,
+        effects: item.effects,
+        from: null,
+        icon: item.icon,
+        incompatibleTraits: item.incompatible_traits,
+        name: item.name,
+        unique: item.unique,
+      })
+    }
+
+    // build composable items list for base items
+    Object.values(items).filter(item => item.composable()).forEach(item => {
+      item.composition.forEach(baseItemId => {
+        items[baseItemId].addComposableItemId(item.id)
+      })
+    })
+
+    return items
+  })
+
+  const traits = await fetch_json(`https://raw.githubusercontent.com/jswildcards/tft-data/main/${data_dragon_version}/${locale}/traits.json`).then(traits => {
+    for(const [trait_id, trait] of Object.entries(traits)) {
+      traits[trait_id] = new Trait({
+        id: trait_id,
+        desc: trait.description,
+        effects: trait.effects,
+        icon: trait.icon,
+        name: trait.name,
+        championIds: trait.champion_ids,
+      })
+    }
+
+    return traits
+  })
 
   return {
-    traits:    traitHashes,
-    champions: championHashes,
-    items:     itemHashes,
-    augments:  augmentHashes,
+    augments,
+    champions,
+    items,
+    traits,
   }
 }
 

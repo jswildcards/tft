@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
 
 import { useStaticDataStore } from '../stores/StaticData'
 
 const staticDataStore = useStaticDataStore()
-const { getLocaleDisplay } = storeToRefs(staticDataStore)
 staticDataStore.initialize()
 
 const showModal = ref(false)
@@ -37,7 +35,7 @@ function updateSelectedLocale(localeCode: string) {
 
       <div class="header__modal__button-group">
         <button v-for="localeCode in staticDataStore.availableLocales" :key="localeCode" @click="updateSelectedLocale(localeCode)" :class="`header__modal__button-group__button ${setActiveLocale(localeCode)}`">
-          {{ getLocaleDisplay(localeCode)?.full }}
+          {{ staticDataStore.availableLocaleDisplays[localeCode] }}
         </button>
       </div>
     </div>
@@ -66,7 +64,9 @@ function updateSelectedLocale(localeCode: string) {
     <div>
       <button v-if="staticDataStore.isInitialized" class="header__option-locale" @click="openModal()">
         <div>🌐</div>
-        <div class="ml-2">{{ getLocaleDisplay(staticDataStore.selectedLocale)?.simple }}</div>
+        <div class="ml-2">
+          {{ staticDataStore.availableLocaleDisplays[staticDataStore.selectedLocale] }}
+        </div>
       </button>
     </div>
   </div>

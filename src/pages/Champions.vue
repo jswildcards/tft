@@ -7,6 +7,7 @@ import { useStaticDataStore } from '../stores/StaticData'
 import ChampionIcon from '../components/ChampionIcon.vue'
 import LoadPage from '../components/LoadPage.vue'
 import SquareImage from '../components/SquareImage.vue'
+import SearchEmpty from '../components/SearchEmpty.vue'
 
 const SORT_OPTION_CHARACTER = 'sort_option_character'
 const SORT_OPTION_COST = 'sort_option_cost'
@@ -15,21 +16,25 @@ const staticDataStore = useStaticDataStore()
 const { getTrait } = storeToRefs(staticDataStore)
 staticDataStore.loadData()
 
-const sortOption = ref(SORT_OPTION_CHARACTER)
-const champions = computed(() => {
-  if(sortOption.value === SORT_OPTION_COST)
-    return staticDataStore.getAllChampionsSortedByCost
+const searchText = ref("")
+const sortOption = ref(SORT_OPTION_COST)
 
-  return staticDataStore.champions
+const champions = computed(() => {
+  let allChampions = staticDataStore.getAllChampionsSortedByName
+
+  if(sortOption.value === SORT_OPTION_COST)
+    allChampions = staticDataStore.getAllChampionsSortedByCost
+
+  return allChampions.filter((champion: Champion) =>
+    champion.name.toLowerCase().includes(searchText.value.toLowerCase())
+  )
 })
 
 const randomChampionName = computed(() => {
-  const championsArray = Object.values(champions.value)
-  const randomIndex = Math.floor(Math.random() * championsArray.length)
-  return championsArray[randomIndex].name
+  const allChampions = staticDataStore.getAllChampionsSortedByName
+  const randomIndex = Math.floor(Math.random() * allChampions.length)
+  return allChampions[randomIndex].name
 })
-
-const searchText = ref("")
 
 function setSearchText(text: string) {
   searchText.value = text
@@ -69,15 +74,19 @@ function setActiveSortOption(option: string) {
       </div>
     </div>
 
-    <div class="champions__champion-list">
-      <router-link :to="champion.url" :key="champion.id" v-for="champion in Object.values(champions).filter(champion => champion.name.toLowerCase().includes(searchText.toLowerCase()))" class="champions__champion-list__item">
-        <ChampionIcon :src="champion.icon" :cost="champion.cost" />
-        <div class="mt-1 text-sm">{{ champion.name }}</div>
+    <div class="champions__champion-container">
+      <div v-if="champions.length > 0" class="champions__champion-list">
+        <router-link :to="champion.url" :key="champion.id" v-for="champion in champions" class="champions__champion-list__item">
+          <ChampionIcon :src="champion.icon" :cost="champion.cost" />
+          <div class="mt-1 text-sm">{{ champion.name }}</div>
 
-        <div class="flex mt-1">
-          <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
-        </div>
-      </router-link>
+          <div class="flex mt-1">
+            <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+          </div>
+        </router-link>
+      </div>
+
+      <SearchEmpty v-else />
     </div>
   </LoadPage>
 </template>
@@ -132,8 +141,12 @@ function setActiveSortOption(option: string) {
   @apply shrink-0 w-8 rounded-l bg-sky-950 flex justify-center items-center font-bold text-lg mr-2;
 }
 
+.champions__champion-container {
+  @apply rounded p-4 bg-slate-900;
+}
+
 .champions__champion-list {
-  @apply rounded grid gap-2 justify-center bg-slate-900 p-4;
+  @apply grid gap-2 justify-center;
   grid-template-columns: repeat(auto-fit, 112px);
 }
 

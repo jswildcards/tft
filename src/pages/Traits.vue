@@ -7,6 +7,7 @@ import { useStaticDataStore } from '../stores/StaticData'
 import ChampionIcon from '../components/ChampionIcon.vue'
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
+import SearchEmpty from '../components/SearchEmpty.vue'
 
 import Trait from '../models/tft/Trait'
 import Champion from '../models/tft/Champion'
@@ -75,7 +76,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
       <div class="bg-slate-800 rounded p-4 shadow-2xl w-5/6 max-w-md flex">
         <SquareImage size="sm" class="mr-2" :src="targetTrait.icon" />
 
-        <div>
+        <div class="grow">
           <div class="font-semibold mb-2">{{ targetTrait.name }}</div>
           <div v-html="targetTrait.getAdjustedDescription()" class="text-secondary text-sm"></div>
 
@@ -114,11 +115,15 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
       </div>
     </div>
 
-    <div class="traits__trait-list">
-      <div :key="trait.id" v-for="trait in traits" class="traits__trait-list__item" @click="setTargetTraitId(trait.id)">
-        <SquareImage :src="trait.icon" size="sm" />
-        <div class="mt-1 text-sm">{{ trait.name }}</div>
+    <div class="traits__trait-container">
+      <div v-if="traits.length > 0" class="traits__trait-list">
+        <div :key="trait.id" v-for="trait in traits" class="traits__trait-list__item" @click="setTargetTraitId(trait.id)">
+          <SquareImage :src="trait.icon" size="sm" />
+          <div class="mt-1 text-sm">{{ trait.name }}</div>
+        </div>
       </div>
+
+      <SearchEmpty v-else />
     </div>
   </LoadPage>
 </template>
@@ -145,8 +150,12 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
   background: conic-gradient(from 180deg, rgb(181, 249, 177) -25.61deg, rgb(174, 167, 248) 0.63deg, rgb(185, 232, 188) 27.2deg, rgb(246, 254, 216) 56.21deg, rgb(199, 251, 247) 83.01deg, rgb(154, 240, 254) 109.35deg, rgb(245, 236, 255) 129.56deg, rgb(248, 153, 248) 154.85deg, rgb(182, 252, 227) 181.24deg, rgb(126, 147, 242) 210.86deg, rgb(225, 164, 253) 244.3deg, rgb(175, 230, 240) 264.6deg, rgb(243, 241, 199) 287.41deg, rgb(233, 159, 126) 306.52deg, rgb(181, 249, 177) 334.39deg, rgb(174, 167, 248) 360.63deg);
 }
 
+.traits__trait-container {
+  @apply rounded bg-slate-900 p-4;
+}
+
 .traits__trait-list {
-  @apply rounded grid gap-2 justify-center bg-slate-900 p-4;
+  @apply grid gap-2 justify-center;
   grid-template-columns: repeat(auto-fit, 112px);
 }
 

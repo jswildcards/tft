@@ -5,6 +5,7 @@ import { useStaticDataStore } from '../stores/StaticData'
 
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
+import SearchEmpty from '../components/SearchEmpty.vue'
 import Augment from '../models/tft/Augment'
 
 const staticDataStore = useStaticDataStore()
@@ -36,7 +37,7 @@ function setSearchText(text: string) {
 }
 
 const augments = computed(() => {
-  return Object.values(staticDataStore.augments)
+  return staticDataStore.getAllAugments
     .filter((augment: Augment) => {
       return augment.name.toLowerCase().includes(searchText.value.toLowerCase())
     })
@@ -57,7 +58,7 @@ const augments = computed(() => {
           <button class="w-8 h-8 rounded-full hover:bg-slate-900" @click="setTargetAugmentId(null)">×</button>
         </div>
 
-        <div v-html="targetAugment.getAdjustedDescription()" class="text-secondary text-sm"></div>
+        <div v-html="targetAugment.getAdjustedDescription()" class="ml-14 text-secondary text-sm"></div>
       </div>
     </div>
 
@@ -75,11 +76,15 @@ const augments = computed(() => {
       </div>
     </div>
 
-    <div class="augments__augment-list">
-      <button v-for="augment in augments" :key="augment.id" class="augments__augment-list__augment" @click="setTargetAugmentId(augment.id)">
-        <SquareImage :src="augment.icon" />
-        <div class="mt-1 text-sm">{{ augment.name }}</div>
-      </button>
+    <div class="augments__augment-container">
+      <div v-if="augments.length > 0" class="augments__augment-list">
+        <button v-for="augment in augments" :key="augment.id" class="augments__augment-list__augment" @click="setTargetAugmentId(augment.id)">
+          <SquareImage :src="augment.icon" />
+          <div class="mt-1 text-sm">{{ augment.name }}</div>
+        </button>
+      </div>
+
+      <SearchEmpty v-else />
     </div>
   </LoadPage>
 </template>
@@ -105,9 +110,17 @@ const augments = computed(() => {
   @apply bg-slate-800;
 }
 
+.augments__augment-container {
+  @apply rounded p-4 bg-slate-900;
+}
+
 .augments__augment-list {
-  @apply rounded grid gap-2 p-4 justify-center bg-slate-900;
+  @apply grid gap-2 justify-center;
   grid-template-columns: repeat(auto-fit, 112px);
+}
+
+.augments__augment-list--empty {
+  @apply flex flex-col items-center;
 }
 
 .augments__augment-list__augment {

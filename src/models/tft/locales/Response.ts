@@ -1,7 +1,4 @@
-interface LocalesResponse {
-  available: string[]
-  default: string
-}
+type LocalesResponse = Record<string, string>
 
 export type {
   LocalesResponse,

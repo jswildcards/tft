@@ -1,6 +1,6 @@
 interface VersionsResponse {
-  communityDragon: string
-  dataDragon: string
+  community_dragon: string
+  data_dragon: string
   set: string
 }
 

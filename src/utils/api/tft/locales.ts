@@ -1,8 +1,7 @@
 import { LocalesResponse } from '../../../models/tft/locales/Response'
-import fetch from '../fetch'
 
 async function getLocales(): Promise<LocalesResponse> {
-  const response = await fetch('data/locales.json')
+  const response = await fetch('https://raw.githubusercontent.com/jswildcards/tft-data/main/available_languages.json')
   return response.json()
 }
 

@@ -5,6 +5,8 @@ import { useStaticDataStore } from '../stores/StaticData'
 
 import SquareImage from '../components/SquareImage.vue'
 import LoadPage from '../components/LoadPage.vue'
+import SearchEmpty from '../components/SearchEmpty.vue'
+import Item from '../models/tft/Item'
 
 const baseURL = import.meta.env.BASE_URL
 
@@ -39,29 +41,22 @@ const targetItemId = ref<string | null>(null)
 
 const filterOption = ref(FILTER_ALL_ITEMS)
 const showFilterOptions = ref(false)
+
 const items = computed(() => {
-  if(filterOption.value === FILTER_BASE_ITEMS)
-    return staticDataStore.getAllBaseItems
+  const filterItemsMap: Record<string, Item[]> = {
+    [FILTER_ALL_ITEMS]:        Object.values(staticDataStore.items),
+    [FILTER_BASE_ITEMS]:       staticDataStore.getAllBaseItems,
+    [FILTER_COMPOSABLE_ITEMS]: staticDataStore.getAllComposableItems,
+    [FILTER_EMBLEM_ITEMS]:     staticDataStore.getAllEmblemItems,
+    [FILTER_RADIANT_ITEMS]:    staticDataStore.getAllRadiantItems,
+    [FILTER_SUPPORT_ITEMS]:    staticDataStore.getAllSupportItems,
+    [FILTER_ORNN_ITEMS]:       staticDataStore.getAllOrnnItems,
+    [FILTER_OTHER_ITEMS]:      staticDataStore.getAllOtherItems,
+  }
 
-  if(filterOption.value === FILTER_COMPOSABLE_ITEMS)
-    return staticDataStore.getAllComposableItems
-
-  if(filterOption.value === FILTER_EMBLEM_ITEMS)
-    return staticDataStore.getAllEmblemItems
-
-  if(filterOption.value === FILTER_RADIANT_ITEMS)
-    return staticDataStore.getAllRadiantItems
-
-  if(filterOption.value === FILTER_SUPPORT_ITEMS)
-    return staticDataStore.getAllSupportItems
-
-  if(filterOption.value === FILTER_ORNN_ITEMS)
-    return staticDataStore.getAllOrnnItems
-
-  if(filterOption.value === FILTER_OTHER_ITEMS)
-    return staticDataStore.getAllOtherItems
-
-  return staticDataStore.items
+  return filterItemsMap[filterOption.value].filter(item =>
+    item.name.toLowerCase().includes(searchText.value.toLowerCase())
+  )
 })
 
 const targetItem = computed(() => {
@@ -72,7 +67,7 @@ const targetItem = computed(() => {
 })
 
 const randomItemName = computed(() => {
-  const itemsArray = Object.values(items.value)
+  const itemsArray = Object.values(staticDataStore.items)
   const randomIndex = Math.floor(Math.random() * itemsArray.length)
   return itemsArray[randomIndex].name
 })
@@ -121,23 +116,25 @@ function toggleShowFilterOptions(e: MouseEvent) {
           <button class="w-8 h-8 rounded-full hover:bg-slate-900" @click="setTargetItemId(null)">×</button>
         </div>
 
-        <div v-html="targetItem.getAdjustedDescription()" class="text-secondary text-sm"></div>
+        <div class="ml-14">
+          <div v-html="targetItem.getAdjustedDescription()" class="text-secondary text-sm"></div>
 
-        <div v-if="targetItem.base()" class="mt-2">
-          <div class="text-sm font-bold mb-1">Composable Items</div>
-          <div class="flex flex-wrap">
-            <button v-for="item in targetItem.composableItemIds.map(itemId => staticDataStore.items[itemId])" :key="item.id" @click="setTargetItemId(item.id)">
-              <SquareImage :src="item.icon" size="sm" />
-            </button>
+          <div v-if="targetItem.base()" class="mt-2">
+            <div class="text-sm font-bold mb-1">Composable Items</div>
+            <div class="flex flex-wrap">
+              <button v-for="item in targetItem.composableItemIds.map(itemId => staticDataStore.items[itemId])" :key="item.id" @click="setTargetItemId(item.id)">
+                <SquareImage :src="item.icon" size="sm" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div v-if="targetItem.composable()" class="mt-2">
-          <div class="text-sm font-bold mb-1">Recipes</div>
-          <div class="flex flex-wrap">
-            <button v-for="item in targetItem.composition.map(itemId => staticDataStore.items[itemId])" :key="item.id" @click="setTargetItemId(item.id)">
-              <SquareImage :src="item.icon" size="sm" />
-            </button>
+          <div v-if="targetItem.composable()" class="mt-2">
+            <div class="text-sm font-bold mb-1">Recipes</div>
+            <div class="flex flex-wrap">
+              <button v-for="item in targetItem.composition.map(itemId => staticDataStore.items[itemId])" :key="item.id" @click="setTargetItemId(item.id)">
+                <SquareImage :src="item.icon" size="sm" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -170,15 +167,19 @@ function toggleShowFilterOptions(e: MouseEvent) {
       </div>
     </div>
 
-    <div class="items__item-list">
-      <button v-for="item in Object.values(items).filter(item => item.name.toLowerCase().includes(searchText.toLowerCase())).sort((a, b) => a.name < b.name ? -1 : (a.name > b.name ? 1 : 0))" :key="item.id" class="items__item-list__item" @click="setTargetItemId(item.id)">
-        <SquareImage :src="item.icon" />
-        <div class="mt-1 text-sm">{{ item.name }}</div>
+    <div class="items__item-container">
+        <div v-if="items.length > 0" class="items__item-list">
+        <button v-for="item in items" :key="item.id" class="items__item-list__item" @click="setTargetItemId(item.id)">
+          <SquareImage :src="item.icon" />
+          <div class="mt-1 text-sm">{{ item.name }}</div>
 
-        <div class="flex mt-1">
-          <SquareImage v-for="(baseItem, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId])" :key="baseItem.id" :src="baseItem.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
-        </div>
-      </button>
+          <div class="flex mt-1">
+            <SquareImage v-for="(baseItem, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId])" :key="baseItem.id" :src="baseItem.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+          </div>
+        </button>
+      </div>
+      
+      <SearchEmpty v-else />
     </div>
   </LoadPage>
 </template>
@@ -204,8 +205,12 @@ function toggleShowFilterOptions(e: MouseEvent) {
   @apply bg-slate-800;
 }
 
+.items__item-container {
+  @apply rounded p-4 bg-slate-900;
+}
+
 .items__item-list {
-  @apply rounded grid gap-2 p-4 justify-center bg-slate-900;
+  @apply grid gap-2 justify-center;
   grid-template-columns: repeat(auto-fit, 112px);
 }
 
