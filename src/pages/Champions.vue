@@ -8,6 +8,7 @@ import ChampionIcon from '../components/ChampionIcon.vue'
 import LoadPage from '../components/LoadPage.vue'
 import SquareImage from '../components/SquareImage.vue'
 import SearchEmpty from '../components/SearchEmpty.vue'
+import Champion from '../models/tft/Champion'
 
 const SORT_OPTION_CHARACTER = 'sort_option_character'
 const SORT_OPTION_COST = 'sort_option_cost'
