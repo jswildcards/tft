@@ -7,6 +7,8 @@ import { useStaticDataStore } from '../stores/StaticData'
 import ChampionIcon from '../components/ChampionIcon.vue'
 import LoadPage from '../components/LoadPage.vue'
 import SquareImage from '../components/SquareImage.vue'
+import Champion from '../models/tft/Champion'
+import Trait from '../models/tft/Trait'
 
 const staticDataStore = useStaticDataStore()
 const { getChampion, getTrait } = storeToRefs(staticDataStore)

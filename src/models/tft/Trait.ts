@@ -51,7 +51,7 @@ class Trait {
         currentMinUnits = (minUnits as number)
     })
 
-    return currentMinUnits === Infinity ? this.effects.at(-1).minUnits : currentMinUnits
+    return currentMinUnits === Infinity ? this.effects.slice(-1)[0].minUnits : currentMinUnits
   }
 
   getEffectLevel(count: number) {
