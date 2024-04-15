@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <img src="/images/chibi_kaisa_popstars.png" class="home__main-icon" />
+    <img src="/images/chibi_ahri_blossom.png" class="home__main-icon" />
     <div class="home__content">
       <h1 class="home__content__header">Get Ready for the Fight!</h1>
       <p class="home__content__description">Discover your favourite champions and build your dream team</p>
