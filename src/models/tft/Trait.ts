@@ -43,6 +43,23 @@ class Trait {
     this.championIds = championIds
   }
 
+  minUnitsToNextLevel(count: number) {
+    let currentMinUnits = Infinity
+
+    this.effects.forEach(({ minUnits }) => {
+      if(count < (minUnits as number) && currentMinUnits === Infinity)
+        currentMinUnits = (minUnits as number)
+    })
+
+    return currentMinUnits === Infinity ? this.effects.at(-1).minUnits : currentMinUnits
+  }
+
+  getEffectLevel(count: number) {
+    return this.effects.find(({ maxUnits, minUnits }) => {
+      return (minUnits as number) <= count && count <= (maxUnits as number)
+    })?.style as number ?? 0
+  }
+
   getAdjustedDescription() {
     return substituteScaleIcons(this.desc)
   }

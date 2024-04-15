@@ -47,6 +47,9 @@ function updateSelectedLocale(localeCode: string) {
         <img src="/images/logo.png" class="w-8 h-8" />
         <span>TFT Fan</span>
       </router-link>
+      <router-link to="/build" class="header__btn-link">
+        Build
+      </router-link>
       <router-link to="/champions" class="header__btn-link">
         Champions
       </router-link>
