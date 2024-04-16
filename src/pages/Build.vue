@@ -104,8 +104,8 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
           <div v-html="targetTrait.getAdjustedDescription()" class="text-secondary text-sm"></div>
 
           <div class="flex flex-wrap mt-4">
-            <router-link :to="champion.url" v-for="champion in targetTrait.championIds.map(getChampion).sort((a, b) => a.compareByCost(b))" :key="champion.id" class="relative mr-2 mb-2" @click="clearActiveTraitChampionId()">
-              <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" @mouseenter="setActiveTraitChampionId(targetTrait, champion)" @mouseleave="clearActiveTraitChampionId()" />
+            <button v-for="champion in targetTrait.championIds.map(getChampion).sort((a, b) => a.compareByCost(b))" :key="champion.id" class="relative mr-2 mb-2" @click="addChampionToTeam(champion.id)">
+              <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" :class="team_champion_ids.includes(champion.id) ? '' : 'grayscale'" @mouseenter="setActiveTraitChampionId(targetTrait, champion)" @mouseleave="clearActiveTraitChampionId()" />
               <div :class="`absolute flex left-0 items-center -ml-2 border-2 border-slate-700 bg-slate-800 shadow z-50 shadow p-1.5 rounded top-1/2 -translate-y-1/2 w-max ${isActiveTraitChampionId(targetTrait, champion) ? '' : 'hidden'}`">
                 <ChampionIcon size="sm" :src="champion.icon" :cost="champion.cost" @mouseenter="setActiveTraitChampionId(targetTrait, champion)" @mouseleave="clearActiveTraitChampionId()" />
                 <div class="ml-2">
@@ -116,7 +116,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
                   </div>
                 </div>
               </div>
-            </router-link>
+            </button>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
 
     <div class="build__champion-list">
       <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
-        <ChampionIcon :src="champion.icon" :cost="champion.cost" />
+        <ChampionIcon :src="champion.icon" :cost="champion.cost" :class="team_champion_ids.includes(champion.id) ? 'opacity-25' : ''" />
         <div class="mt-1 text-sm">{{ champion.name }}</div>
 
         <div class="flex mt-1">
