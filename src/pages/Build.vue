@@ -125,9 +125,9 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
     </div>
 
     <div class="build__team-container">
-      <div class="flex min-h-11">
+      <div class="flex flex-wrap min-h-11">
         <button v-for="{ trait, count } in Object.values(active_traits)" :key="trait.id" :class="`active-trait-style active-trait-style--${trait.getEffectLevel(count)}`" @click="setTargetTraitId(trait.id)">
-          <SquareImage :src="trait.icon" size="xs" class="mr-0.5" />
+          <SquareImage :src="trait.icon" size="xs" class="mr-1" />
           <div>{{ count }} / {{ trait.minUnitsToNextLevel(count) }}</div>
         </button>
       </div>
