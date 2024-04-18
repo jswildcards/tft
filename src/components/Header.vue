@@ -64,8 +64,9 @@ function updateSelectedLocale(localeCode: string) {
       </router-link>
     </div>
 
-    <div>
-      <button v-if="staticDataStore.isInitialized" class="header__option-locale" @click="openModal()">
+    <div v-if="staticDataStore.isInitialized" class="flex items-center">
+      <div class="text-secondary mr-2 text-sm">v{{ staticDataStore.data_dragon_version }}</div>
+      <button class="header__option-locale" @click="openModal()">
         <div>🌐</div>
         <div class="ml-2">
           {{ staticDataStore.availableLocaleDisplays?.[staticDataStore.selectedLocale ?? ""] }}

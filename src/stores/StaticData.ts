@@ -14,6 +14,8 @@ interface State {
   items: Record<string, Item>
   augments: Record<string, Augment>
 
+  data_dragon_version: string
+
   selectedLocale: string | null
   currentLocale: string | null
   availableLocales: string[] | null
@@ -29,6 +31,8 @@ const useStaticDataStore = defineStore('staticData', {
     traits:    {},
     items:     {},
     augments:  {},
+
+    data_dragon_version: "",
 
     selectedLocale: null,
     currentLocale: null,
@@ -110,11 +114,12 @@ const useStaticDataStore = defineStore('staticData', {
       if(this.currentLocale === null)
         return
 
-      const { champions, traits, items, augments } = await getTFTStaticDataResults(this.currentLocale)
+      const { champions, traits, items, augments, data_dragon_version } = await getTFTStaticDataResults(this.currentLocale)
       this.champions = champions ?? {}
       this.traits = traits ?? {}
       this.items = items ?? {}
       this.augments = augments ?? {}
+      this.data_dragon_version = data_dragon_version
 
       this.isDataLoaded = true
     },

@@ -115,6 +115,7 @@ async function getTFTStaticDataResults(locale: string) {
     champions,
     items,
     traits,
+    data_dragon_version,
   }
 }
 
