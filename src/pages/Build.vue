@@ -19,6 +19,11 @@ const team_champion_ids = ref<string[]>([])
 const team = computed(() => {
   return team_champion_ids.value.map(champion_id => {
     return staticDataStore.champions[champion_id]
+  }).sort((a, b) => {
+    if(a.cost !== b.cost)
+      return a.compareByCost(b)
+
+    return a.compareByName(b)
   })
 })
 
@@ -41,6 +46,29 @@ const active_traits = computed(() => {
   return traits_count
 })
 
+const sorted_active_trait_ids = computed(() => {
+    const traits_count = active_traits.value
+    const active_trait_ids = Object.keys(traits_count)
+
+    return active_trait_ids.sort((id_a, id_b) => {
+        const [
+            { trait: trait_a, count: count_a },
+            { trait: trait_b, count: count_b }
+        ] = [traits_count[id_a], traits_count[id_b]]
+
+        const [level_a, level_b] = [trait_a.getEffectLevel(count_a), trait_b.getEffectLevel(count_b)]
+        const [diff_a, diff_b] = [trait_a.minUnitsToNextLevel(count_a) - count_a, trait_b.minUnitsToNextLevel(count_b) - count_b]
+
+        if(level_a !== level_b)
+            return level_b - level_a
+
+        if(diff_a !== diff_b)
+            return diff_a - diff_b
+
+        return count_b - count_a
+    })
+})
+
 const targetTraitId = ref<string | null>(null)
 
 const targetTrait = computed(() => {
@@ -61,11 +89,12 @@ function addChampionToTeam(champion_id: string) {
   ]
 }
 
-function removeChampionFromTeam(index: number) {
-  team_champion_ids.value = [
-    ...team_champion_ids.value.slice(0, index),
-    ...team_champion_ids.value.slice(index + 1),
-  ]
+function removeChampionFromTeam(champion_id: string) {
+  const remove_index = team_champion_ids.value.findIndex((id) => id === champion_id)
+
+  team_champion_ids.value = team_champion_ids.value.filter((_, index) => {
+    return index !== remove_index
+  })
 }
 
 const activeTraitChampionId = ref<string | null>(null)
@@ -126,15 +155,15 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
 
     <div class="build__team-container">
       <div class="flex flex-wrap min-h-11">
-        <button v-for="{ trait, count } in Object.values(active_traits)" :key="trait.id" :class="`active-trait-style active-trait-style--${trait.getEffectLevel(count)}`" @click="setTargetTraitId(trait.id)">
-          <SquareImage :src="trait.icon" size="xs" class="mr-1" />
-          <div>{{ count }} / {{ trait.minUnitsToNextLevel(count) }}</div>
+        <button v-for="trait_id in sorted_active_trait_ids" :key="trait_id" :class="`active-trait-style active-trait-style--${active_traits[trait_id].trait.getEffectLevel(active_traits[trait_id].count)}`" @click="setTargetTraitId(trait_id)">
+          <SquareImage :src="active_traits[trait_id].trait.icon" size="xs" class="mr-1" />
+          <div>{{ active_traits[trait_id].count }} / {{ active_traits[trait_id].trait.minUnitsToNextLevel(active_traits[trait_id].count) }}</div>
         </button>
       </div>
 
       <div class="build__team-list-container">
         <div v-if="team.length > 0" class="build__team-list">
-          <button :key="champion.id" v-for="(champion, index) in team" class="build__champion-list__item" @click="removeChampionFromTeam(index)">
+          <button :key="champion.id" v-for="champion in team" class="build__champion-list__item" @click="removeChampionFromTeam(champion.id)">
             <ChampionIcon :src="champion.icon" :cost="champion.cost" />
             <div class="mt-1 text-sm">{{ champion.name }}</div>
 
@@ -151,12 +180,12 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
     </div>
 
     <div class="build__champion-list">
-      <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
+      <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost.sort((a, b) => { return b.traitIds.reduce((count, trait_id) => count + sorted_active_trait_ids.includes(trait_id), 0) - a.traitIds.reduce((count, trait_id) => count + sorted_active_trait_ids.includes(trait_id), 0)})" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
         <ChampionIcon :src="champion.icon" :cost="champion.cost" :class="team_champion_ids.includes(champion.id) ? 'opacity-25' : ''" />
         <div class="mt-1 text-sm">{{ champion.name }}</div>
 
         <div class="flex mt-1">
-          <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+          <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="`rounded-sm ${index === 0 ? '' : 'ml-1'} ${sorted_active_trait_ids.includes(trait.id) ? 'border border-teal-400 bg-teal-700' : ''}`" />
         </div>
       </button>
     </div>
