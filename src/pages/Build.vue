@@ -69,6 +69,31 @@ const sorted_active_trait_ids = computed(() => {
     })
 })
 
+const sorted_champions = computed(() => {
+  const all_champions = staticDataStore.getAllChampionsSortedByCost
+
+  function active_traits_count(trait_ids: string[]) {
+    let count = 0
+
+    for(const trait_id of trait_ids) {
+      if(sorted_active_trait_ids.value.includes(trait_id))
+        count++
+    }
+
+    return count
+  }
+
+  return all_champions.sort((a, b) => {
+    if(active_traits_count(a.traitIds) !== active_traits_count(b.traitIds))
+      return active_traits_count(b.traitIds) - active_traits_count(a.traitIds)
+
+    if(a.cost !== b.cost)
+      return a.compareByCost(b)
+
+    return a.compareByName(b)
+  })
+})
+
 const targetTraitId = ref<string | null>(null)
 
 const targetTrait = computed(() => {
@@ -180,7 +205,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
     </div>
 
     <div class="build__champion-list">
-      <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost.sort((a, b) => { return b.traitIds.reduce((count, trait_id) => count + (sorted_active_trait_ids.includes(trait_id) ? 1 : 0), 0) - a.traitIds.reduce((count, trait_id) => count + (sorted_active_trait_ids.includes(trait_id) ? 1 : 0), 0)})" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
+      <button :key="champion.id" v-for="champion in sorted_champions" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
         <ChampionIcon :src="champion.icon" :cost="champion.cost" :class="team_champion_ids.includes(champion.id) ? 'opacity-25' : ''" />
         <div class="mt-1 text-sm">{{ champion.name }}</div>
 
