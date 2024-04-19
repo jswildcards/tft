@@ -180,7 +180,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
     </div>
 
     <div class="build__champion-list">
-      <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost.sort((a, b) => { return b.traitIds.reduce((count, trait_id) => count + sorted_active_trait_ids.includes(trait_id), 0) - a.traitIds.reduce((count, trait_id) => count + sorted_active_trait_ids.includes(trait_id), 0)})" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
+      <button :key="champion.id" v-for="champion in staticDataStore.getAllChampionsSortedByCost.sort((a, b) => { return b.traitIds.reduce((count, trait_id) => count + (sorted_active_trait_ids.includes(trait_id) ? 1 : 0), 0) - a.traitIds.reduce((count, trait_id) => count + (sorted_active_trait_ids.includes(trait_id) ? 1 : 0), 0)})" class="build__champion-list__item" @click="addChampionToTeam(champion.id)">
         <ChampionIcon :src="champion.icon" :cost="champion.cost" :class="team_champion_ids.includes(champion.id) ? 'opacity-25' : ''" />
         <div class="mt-1 text-sm">{{ champion.name }}</div>
 
