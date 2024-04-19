@@ -43,6 +43,10 @@ class Trait {
     this.championIds = championIds
   }
 
+  minUnitsNeededToNextLevel(count: number) {
+    return this.minUnitsToNextLevel(count) - count
+  }
+
   minUnitsToNextLevel(count: number) {
     let currentMinUnits = Infinity
 

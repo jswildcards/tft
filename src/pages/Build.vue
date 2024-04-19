@@ -57,7 +57,7 @@ const sorted_active_trait_ids = computed(() => {
         ] = [traits_count[id_a], traits_count[id_b]]
 
         const [level_a, level_b] = [trait_a.getEffectLevel(count_a), trait_b.getEffectLevel(count_b)]
-        const [diff_a, diff_b] = [trait_a.minUnitsToNextLevel(count_a) - count_a, trait_b.minUnitsToNextLevel(count_b) - count_b]
+        const [diff_a, diff_b] = [trait_a.minUnitsNeededToNextLevel(count_a), trait_b.minUnitsNeededToNextLevel(count_b)]
 
         if(level_a !== level_b)
             return level_b - level_a
@@ -210,7 +210,7 @@ function isActiveTraitChampionId(trait: Trait, champion: Champion) {
         <div class="mt-1 text-sm">{{ champion.name }}</div>
 
         <div class="flex mt-1">
-          <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="`rounded-sm ${index === 0 ? '' : 'ml-1'} ${sorted_active_trait_ids.includes(trait.id) ? 'border border-teal-400 bg-teal-700' : ''}`" />
+          <SquareImage v-for="(trait, index) in champion.traitIds.map(getTrait)" :key="trait.id" :src="trait.icon" size="xs" :class="`rounded-sm ${index === 0 ? '' : 'ml-1'} ${trait.minUnitsNeededToNextLevel(active_traits?.[trait.id]?.count ?? -Infinity) === 1 ? 'border border-yellow-400 bg-yellow-600' : (sorted_active_trait_ids.includes(trait.id) ? 'border border-teal-400 bg-teal-700' : '')}`" />
         </div>
       </button>
     </div>
