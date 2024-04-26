@@ -1,25 +1,20 @@
-import {AugmentObject} from "../models/api/Augment"
-import {ChampionObject} from "../models/api/Champion"
-import {ItemObject} from "../models/api/Item"
-import {TraitObject} from "../models/api/Trait"
 import Augment from "../models/tft/Augment"
 import Champion from "../models/tft/Champion"
 import Item from "../models/tft/Item"
 import Trait from "../models/tft/Trait"
 import VersionsResponse from "../models/tft/versions/Response"
+import getAugments from "./api/tft/augments"
+import getChampions from "./api/tft/champions"
+import getItems from "./api/tft/items"
+import getTraits from "./api/tft/traits"
 import getVersions from "./api/tft/versions"
-
-async function fetch_json(url: string) {
-    const response = await fetch(url)
-    return response.json()
-}
 
 async function getTFTStaticDataResults(locale: string) {
   const {
     data_dragon: data_dragon_version,
   }: VersionsResponse = await getVersions()
 
-  const augments = await fetch_json(`https://jswildcards.github.io/tft-data/${data_dragon_version}/${locale}/augments.json`).then((augments: Record<string, AugmentObject>) => {
+  const augments = await getAugments(data_dragon_version, locale).then((augments) => {
     const new_augments: Record<string, Augment> = {}
 
     for(const [augment_id, augment] of Object.entries(augments)) {
@@ -41,7 +36,7 @@ async function getTFTStaticDataResults(locale: string) {
     return new_augments
   })
 
-  const champions = await fetch_json(`https://jswildcards.github.io/tft-data/${data_dragon_version}/${locale}/champions.json`).then((champions: Record<string, ChampionObject>) => {
+  const champions = await getChampions(data_dragon_version, locale).then((champions) => {
     const new_champions: Record<string, Champion> = {}
 
     for(const [champion_id, champion] of Object.entries(champions)) {
@@ -64,7 +59,7 @@ async function getTFTStaticDataResults(locale: string) {
     return new_champions
   })
 
-  const items = await fetch_json(`https://jswildcards.github.io/tft-data/${data_dragon_version}/${locale}/items.json`).then((items: Record<string, ItemObject>) => {
+  const items = await getItems(data_dragon_version, locale).then((items) => {
     const new_items: Record<string, Item> = {}
 
     for(const [item_id, item] of Object.entries(items)) {
@@ -93,7 +88,7 @@ async function getTFTStaticDataResults(locale: string) {
     return new_items
   })
 
-  const traits = await fetch_json(`https://jswildcards.github.io/tft-data/${data_dragon_version}/${locale}/traits.json`).then((traits: Record<string, TraitObject>) => {
+  const traits = await getTraits(data_dragon_version, locale).then((traits) => {
     const new_traits: Record<string, Trait> = {}
 
     for(const [trait_id, trait] of Object.entries(traits)) {

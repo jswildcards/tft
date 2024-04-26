@@ -1,8 +1,8 @@
 import { VersionsResponse } from '../../../models/tft/versions/Response'
+import { fetch_json } from './fetch'
 
-async function getVersions(): Promise<VersionsResponse> {
-  const response = await fetch("https://raw.githubusercontent.com/jswildcards/tft-data/main/versions.json")
-  return response.json()
+function getVersions(): Promise<VersionsResponse> {
+  return fetch_json("versions")
 }
 
 export {
