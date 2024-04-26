@@ -6,6 +6,8 @@ import AugmentsPage from './pages/Augments.vue'
 import TraitsPage from './pages/Traits.vue'
 import BuildPage from './pages/Build.vue'
 
+import SearchEmptyComponent from './components/SearchEmpty.vue'
+
 export default [
   { path: '/', component: HomePage },
   { path: '/champions', component: ChampionsPage },
@@ -14,4 +16,5 @@ export default [
   { path: '/augments', component: AugmentsPage },
   { path: '/traits', component: TraitsPage },
   { path: '/build', component: BuildPage },
+  { path: '/:pathMatch(.*)', component: SearchEmptyComponent },
 ]
