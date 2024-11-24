@@ -81,7 +81,8 @@ async function getTFTStaticDataResults(locale: string) {
     // TODO: re-implement it on data source side
     Object.values(new_items).filter(item => item.composable()).forEach(item => {
       item.composition.forEach(baseItemId => {
-        new_items[baseItemId].addComposableItemId(item.id)
+        if(new_items[baseItemId])
+          new_items[baseItemId].addComposableItemId(item.id)
       })
     })
 

@@ -174,7 +174,7 @@ function toggleShowFilterOptions(e: MouseEvent) {
           <div class="mt-1 text-sm">{{ item.name }}</div>
 
           <div class="flex mt-1">
-            <SquareImage v-for="(baseItem, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId])" :key="baseItem.id" :src="baseItem.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
+            <SquareImage v-for="(baseItem, index) in item.composition.map(baseItemId => staticDataStore.items[baseItemId]).filter(baseItem => baseItem)" :key="baseItem.id" :src="baseItem.icon" size="xs" :class="index === 0 ? '' : 'ml-1'" />
           </div>
         </button>
       </div>
